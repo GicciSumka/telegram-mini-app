@@ -718,8 +718,8 @@
 
         state.lastCenteredIndex = null;
 
-        // Shorter duration + lighter easing on mobile to reduce mid-animation jank
-        const duration = state.isMobile ? 2.8 : 4.6;
+        // Slower, more dramatic spin (slightly longer on mobile for better feel)
+        const duration = state.isMobile ? 3.8 : 5.2;
 
         // Cache for onUpdate to avoid expensive layout calls on mobile.
         const trackPaddingLeft = 0;
