@@ -3,211 +3,185 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Star Casino UI</title>
+    <title>Star Case Opener</title>
     <script src="https://cloudflare.com"></script>
     <link href="https://googleapis.com" rel="stylesheet">
     <style>
         :root {
-            --glass: rgba(255, 255, 255, 0.1);
-            --border: rgba(255, 255, 255, 0.2);
+            --glass: rgba(255, 255, 255, 0.07);
+            --border: rgba(255, 255, 255, 0.15);
             --accent: #FFD700;
         }
 
         body {
-            margin: 0;
-            padding: 0;
-            background: radial-gradient(circle at top right, #1e1e2f, #0a0a0c);
-            color: white;
-            font-family: 'Inter', sans-serif;
-            overflow: hidden;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            margin: 0; background: #08080a; color: white;
+            font-family: 'Inter', sans-serif; height: 100vh;
+            display: flex; justify-content: center; align-items: center;
         }
 
-        /* Стеклянная карточка */
         .app-container {
-            width: 380px;
-            height: 700px;
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            border-radius: 40px;
-            border: 1px solid var(--border);
-            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
-            display: flex;
-            flex-direction: column;
-            padding: 25px;
-            position: relative;
+            width: 400px; height: 750px;
+            background: radial-gradient(circle at top, #252535, #08080a);
+            border-radius: 45px; border: 1px solid var(--border);
+            display: flex; flex-direction: column; padding: 30px;
+            position: relative; overflow: hidden; box-shadow: 0 50px 100px rgba(0,0,0,0.8);
         }
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
+        /* Верхняя панель */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+        .balance-box { background: var(--glass); padding: 10px 20px; border-radius: 20px; border: 1px solid var(--border); }
+        .balance-box span { color: var(--accent); font-weight: 900; font-size: 1.2em; }
+
+        /* Зона Кейса */
+        .case-area {
+            position: relative; width: 100%; height: 180px;
+            background: rgba(0,0,0,0.3); border-radius: 25px;
+            margin-bottom: 40px; overflow: hidden;
+            border: 2px solid var(--border);
         }
 
-        .balance-card {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 15px 25px;
-            border-radius: 20px;
-            text-align: center;
-            border: 1px solid var(--border);
+        /* Центральный указатель */
+        .pointer {
+            position: absolute; left: 50%; top: 0; bottom: 0;
+            width: 4px; background: var(--accent); z-index: 10;
+            transform: translateX(-50%); box-shadow: 0 0 20px var(--accent);
         }
 
-        .balance-value {
-            font-size: 2em;
-            font-weight: 800;
-            color: var(--accent);
-            text-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+        /* Лента с призами */
+        .reel {
+            display: flex; align-items: center; position: absolute;
+            left: 0; top: 0; height: 100%; will-change: transform;
         }
 
-        .section-title {
-            font-size: 0.9em;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            opacity: 0.6;
-            margin-bottom: 15px;
+        .item {
+            min-width: 120px; height: 120px; margin: 0 10px;
+            background: var(--glass); border-radius: 20px;
+            display: flex; flex-direction: column; justify-content: center;
+            align-items: center; border: 1px solid var(--border);
         }
 
-        /* Список заданий */
-        .task-list {
-            flex-grow: 1;
-            overflow-y: auto;
+        .item.rare { border-color: #a335ee; background: rgba(163, 53, 238, 0.1); }
+        .item.epic { border-color: #ff8000; background: rgba(255, 128, 0, 0.1); }
+        .item.legendary { border-color: var(--accent); background: rgba(255, 215, 0, 0.1); }
+
+        .item img { width: 50px; margin-bottom: 10px; filter: drop-shadow(0 0 5px rgba(255,255,255,0.5)); }
+        .item span { font-weight: 700; font-size: 14px; }
+
+        /* Кнопка */
+        .open-btn {
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            border: none; padding: 20px; border-radius: 25px;
+            color: #000; font-weight: 900; font-size: 1.1em;
+            cursor: pointer; transition: 0.3s;
+            box-shadow: 0 15px 30px rgba(255, 140, 0, 0.3);
         }
 
-        .task-item {
-            background: rgba(255, 255, 255, 0.03);
-            margin-bottom: 12px;
-            padding: 15px;
-            border-radius: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: 0.3s;
-            cursor: pointer;
-            border: 1px solid transparent;
-        }
+        .open-btn:disabled { opacity: 0.5; filter: grayscale(1); cursor: not-allowed; }
 
-        .task-item:hover {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: var(--accent);
-        }
-
-        .task-info h4 { margin: 0; font-size: 14px; }
-        .task-info p { margin: 5px 0 0; font-size: 11px; opacity: 0.5; }
-
-        .reward { color: var(--accent); font-weight: bold; }
-
-        /* Кнопка игры */
-        .play-btn {
-            background: linear-gradient(45deg, #FFD700, #FFA500);
-            border: none;
-            padding: 18px;
-            border-radius: 20px;
-            color: black;
-            font-weight: 800;
-            font-size: 1.1em;
-            cursor: pointer;
-            margin-top: 20px;
-            box-shadow: 0 10px 20px rgba(255, 165, 0, 0.3);
-        }
-
-        .play-btn:active { transform: scale(0.95); }
-
-        /* Кастомный скроллбар */
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+        .task-list { flex-grow: 1; overflow-y: auto; margin-top: 30px; }
+        .task { background: var(--glass); padding: 15px; border-radius: 20px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); }
     </style>
 </head>
 <body>
 
-    <div class="app-container" id="app">
+    <div class="app-container">
         <div class="header">
-            <div>
-                <div style="font-size: 12px; opacity: 0.6;">Твой баланс</div>
-                <div class="balance-value" id="balance">0</div>
-            </div>
-            <div style="font-size: 24px;">✨</div>
+            <div><small style="opacity: 0.5;">LUCKY STAR</small></div>
+            <div class="balance-box">⭐ <span id="balance">500</span></div>
         </div>
 
-        <div class="section-title">Задания за звезды</div>
+        <div class="case-area">
+            <div class="pointer"></div>
+            <div class="reel" id="reel">
+                <!-- Элементы генерируются скриптом -->
+            </div>
+        </div>
+
+        <button class="open-btn" id="spinBtn" onclick="startSpin()">ОТКРЫТЬ КЕЙС (50 ⭐)</button>
+
         <div class="task-list">
-            <div class="task-item" onclick="completeTask(50, this)">
-                <div class="task-info">
-                    <h4>Подписаться на канал</h4>
-                    <p>Проверка 2 минуты</p>
-                </div>
-                <div class="reward">+50 ⭐</div>
+            <div style="font-size: 12px; opacity: 0.5; margin-bottom: 15px; letter-spacing: 1px;">БЕСПЛАТНЫЕ ЗВЕЗДЫ</div>
+            <div class="task" onclick="addMoney(100)">
+                <span>Смотреть рекламу</span>
+                <b style="color: var(--accent);">+100</b>
             </div>
-            <div class="task-item" onclick="completeTask(100, this)">
-                <div class="task-info">
-                    <h4>Пригласить друга</h4>
-                    <p>Бонус за каждого</p>
-                </div>
-                <div class="reward">+100 ⭐</div>
-            </div>
-            <div class="task-item" onclick="completeTask(20, this)">
-                <div class="task-info">
-                    <h4>Ежедневный вход</h4>
-                    <p>Забирай сейчас</p>
-                </div>
-                <div class="reward">+20 ⭐</div>
+            <div class="task" onclick="addMoney(50)">
+                <span>Daily Bonus</span>
+                <b style="color: var(--accent);">+50</b>
             </div>
         </div>
-
-        <button class="play-btn" onclick="playGame()">ИГРАТЬ (Ставка 10 ⭐)</button>
     </div>
 
     <script>
-        // Имитация БД через LocalStorage
-        let balance = localStorage.getItem('star_balance') ? parseInt(localStorage.getItem('star_balance')) : 100;
+        const reel = document.getElementById('reel');
         const balanceEl = document.getElementById('balance');
+        const spinBtn = document.getElementById('spinBtn');
+        
+        let balance = 500;
+        const itemWidth = 140; // ширина + margin
+        const itemsData = [
+            { name: '10', type: 'common', val: 10 },
+            { name: '25', type: 'common', val: 25 },
+            { name: '50', type: 'rare', val: 50 },
+            { name: '100', type: 'epic', val: 100 },
+            { name: '500', type: 'legendary', val: 500 },
+            { name: '0', type: 'common', val: 0 },
+        ];
+
+        // Заполняем ленту
+        function createReel() {
+            reel.innerHTML = '';
+            for (let i = 0; i < 50; i++) {
+                const randomItem = itemsData[Math.floor(Math.random() * itemsData.length)];
+                const div = document.createElement('div');
+                div.className = `item ${randomItem.type}`;
+                div.innerHTML = `<span>⭐</span><b>${randomItem.name}</b>`;
+                reel.appendChild(div);
+            }
+        }
+
+        function startSpin() {
+            if (balance < 50) return alert('Мало звезд!');
+            
+            balance -= 50;
+            updateUI();
+            spinBtn.disabled = true;
+
+            // Сброс позиции
+            gsap.set(reel, { x: 0 });
+
+            const winIndex = 40; // На каком элементе остановимся
+            const stopPos = (winIndex * itemWidth) - (200 - itemWidth / 2); // Центрирование
+            const targetItem = reel.children[winIndex];
+
+            // Анимация прокрутки
+            gsap.to(reel, {
+                x: -stopPos,
+                duration: 5,
+                ease: "power4.inOut",
+                onComplete: () => {
+                    const winVal = parseInt(targetItem.innerText.replace('⭐', ''));
+                    balance += winVal;
+                    updateUI();
+                    spinBtn.disabled = false;
+                    
+                    // Эффект победы
+                    gsap.to(targetItem, { scale: 1.2, duration: 0.3, yoyo: true, repeat: 3 });
+                }
+            });
+        }
+
+        function addMoney(amount) {
+            balance += amount;
+            updateUI();
+            gsap.from(balanceEl, { scale: 1.5, duration: 0.3 });
+        }
 
         function updateUI() {
             balanceEl.innerText = balance;
-            localStorage.setItem('star_balance', balance);
         }
 
-        // Плавная анимация появления
-        gsap.from("#app", { duration: 1.2, opacity: 0, y: 50, ease: "power4.out" });
-        gsap.from(".task-item", { duration: 0.8, opacity: 0, x: -20, stagger: 0.2, delay: 0.5 });
-
-        function completeTask(amount, el) {
-            balance += amount;
-            updateUI();
-            
-            // Анимация нажатия
-            gsap.to(el, { x: 10, duration: 0.1, yoyo: true, repeat: 1 });
-            gsap.to(balanceEl, { scale: 1.2, duration: 0.2, yoyo: true, repeat: 1, color: '#00ff00' });
-        }
-
-        function playGame() {
-            if (balance < 10) {
-                alert("Недостаточно звезд!");
-                return;
-            }
-            
-            balance -= 10;
-            updateUI();
-
-            // Имитация игры (рандом)
-            const win = Math.random() > 0.7; // 30% шанс на выигрыш
-            const prize = 50;
-
-            if (win) {
-                setTimeout(() => {
-                    balance += prize;
-                    updateUI();
-                    alert("ВЫИГРЫШ: " + prize + " звезд! ✨");
-                }, 500);
-            }
-            
-            gsap.to(".play-btn", { rotation: 2, duration: 0.1, yoyo: true, repeat: 5 });
-        }
-
-        updateUI();
+        createReel();
     </script>
 </body>
 </html>
