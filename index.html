@@ -718,8 +718,8 @@
 
         state.lastCenteredIndex = null;
 
-        // Shorter duration on mobile for better performance
-        const duration = state.isMobile ? 3.2 : 4.6;
+        // Shorter duration + lighter easing on mobile to reduce mid-animation jank
+        const duration = state.isMobile ? 2.8 : 4.6;
 
         // Cache for onUpdate to avoid expensive layout calls on mobile.
         const trackPaddingLeft = 0;
@@ -730,15 +730,20 @@
           return clamp(Math.round(iFloat), 0, maxIndex);
         };
 
-        // Throttle pointer ticks on mobile - only every 2nd card
-        const tickInterval = state.isMobile ? 2 : 1;
+        // Aggressive tick throttling on mobile - every 4th card, and skip ticks in the "fast middle" part
+        const tickInterval = state.isMobile ? 4 : 1;
         let tickCounter = 0;
+        let lastTickTime = 0;
+
+        // Pause competing ambient animations during spin
+        const ambientTweens = gsap.getTweensOf(ui.openBtn);
+        ambientTweens.forEach((tw) => tw.pause());
 
         return new Promise((resolve) => {
           gsap.to(ui.reelTrack, {
             x: targetX,
             duration,
-            ease: "power4.inOut",
+            ease: state.isMobile ? "power2.inOut" : "power4.inOut",
             force3D: true,
             onUpdate: () => {
               const x = Number(gsap.getProperty(ui.reelTrack, "x"));
@@ -748,8 +753,11 @@
               } else if (centered !== state.lastCenteredIndex) {
                 state.lastCenteredIndex = centered;
                 tickCounter++;
-                if (tickCounter % tickInterval === 0) {
+                // Time-based throttling to prevent clustering in the fast middle
+                const now = performance.now();
+                if (tickCounter % tickInterval === 0 && now - lastTickTime > 80) {
                   pointerTick();
+                  lastTickTime = now;
                 }
               }
             },
@@ -764,6 +772,8 @@
                   // Seamless snap back from 3rd copy to the middle copy (same visuals).
                   const snapX = targetX + n * step;
                   gsap.set(ui.reelTrack, { x: snapX, force3D: true });
+                  // Resume ambient animations
+                  ambientTweens.forEach((tw) => tw.resume());
                   resolve({ baseWinIndex, displayWinIndex: baseWinIndex + n, snapX });
                 },
               });
