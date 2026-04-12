@@ -128,6 +128,14 @@
       filter: drop-shadow(0 0 14px rgba(251,191,36,.35));
     }
 
+    @media (max-width: 360px) {
+      /* Make the reel fit better in very small viewports (e.g., Telegram mini-app) */
+      #reelTrack > div {
+        min-width: 112px !important;
+        height: 92px !important;
+      }
+    }
+
     /* Subtle noise overlay */
     .noise {
       pointer-events: none;
@@ -153,21 +161,21 @@
   <div class="mx-auto w-full max-w-6xl px-4 pb-10">
     <!-- Top Bar -->
     <header class="pt-5">
-      <div class="glass rounded-2xl px-4 py-3 flex items-center justify-between">
+      <div class="glass rounded-2xl px-4 py-3 flex flex-wrap items-center justify-between gap-2">
         <div class="flex items-center gap-3">
           <div class="relative">
             <div class="h-10 w-10 rounded-xl bg-gradient-to-br from-neon-600/50 to-gold-500/30 border border-white/10 shadow-innerGlass"></div>
             <div class="absolute -inset-1 rounded-xl blur-xl bg-neon-600/20"></div>
           </div>
           <div>
-            <div class="text-sm text-white/70">Star Casino</div>
-            <div class="text-lg font-semibold tracking-tight">Case Opener</div>
+            <div id="brandName" class="text-sm text-white/70">Star Casino</div>
+            <div id="appTitle" class="text-lg font-semibold tracking-tight">Case Opener</div>
           </div>
         </div>
 
         <div class="flex items-center gap-2">
           <div class="text-right">
-            <div class="text-xs text-white/60">Star Balance</div>
+            <div id="balanceLabel" class="text-xs text-white/60">Star Balance</div>
             <div class="flex items-center gap-2 justify-end">
               <span class="inline-flex items-center justify-center h-6 w-6 rounded-lg bg-gold-500/15 border border-gold-500/30">
                 <span class="text-gold-400">✦</span>
@@ -175,7 +183,13 @@
               <span id="balance" class="text-xl font-semibold tabular-nums">0</span>
             </div>
           </div>
-          <button id="resetBtn" class="ml-2 px-3 py-2 rounded-xl glass hover:bg-white/10 transition text-sm text-white/80">Reset</button>
+          <div class="flex items-center gap-2">
+            <select id="langSelect" class="px-3 py-2 rounded-xl glass hover:bg-white/10 transition text-sm text-white/80 bg-transparent border border-white/10 outline-none">
+              <option value="ru">RU</option>
+              <option value="en">EN</option>
+            </select>
+            <button id="resetBtn" class="px-3 py-2 rounded-xl glass hover:bg-white/10 transition text-sm text-white/80">Reset</button>
+          </div>
         </div>
       </div>
     </header>
@@ -192,15 +206,15 @@
             <div>
               <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-white/5 text-xs text-white/70">
                 <span class="text-gold-400">✦</span>
-                <span>Stars Theme • Glassmorphism • Dark Mode</span>
+                <span id="heroPill">Stars Theme • Glassmorphism • Dark Mode</span>
               </div>
-              <h1 class="mt-3 text-2xl sm:text-3xl font-semibold tracking-tight">Open a Cosmic Case</h1>
-              <p class="mt-1 text-sm text-white/70 max-w-xl">Pay 100 stars to spin. The winning prize is pre-selected, then the reel lands with a precise slow finish.</p>
+              <h1 id="heroTitle" class="mt-3 text-2xl sm:text-3xl font-semibold tracking-tight">Open a Cosmic Case</h1>
+              <p id="heroDesc" class="mt-1 text-sm text-white/70 max-w-xl">Pay 100 stars to spin. The winning prize is pre-selected, then the reel lands with a precise slow finish.</p>
             </div>
 
             <div class="flex items-center gap-3">
               <div class="rounded-2xl px-4 py-3 glass">
-                <div class="text-xs text-white/60">Cost</div>
+                <div id="costLabel" class="text-xs text-white/60">Cost</div>
                 <div class="text-lg font-semibold tabular-nums">100 <span class="text-gold-400">✦</span></div>
               </div>
               <button id="openBtn" class="px-5 py-3 rounded-2xl bg-gradient-to-r from-neon-600 to-neon-700 shadow-glow border border-white/10 hover:brightness-110 active:brightness-95 transition font-semibold">
@@ -231,7 +245,7 @@
               </div>
 
               <div class="mt-3 flex items-center justify-between gap-3">
-                <div class="text-xs text-white/60">Tip: complete tasks below to farm stars.</div>
+                <div id="tipText" class="text-xs text-white/60">Tip: complete tasks below to farm stars.</div>
                 <div id="lastWin" class="text-xs text-white/70 text-right">Last win: —</div>
               </div>
             </div>
@@ -244,8 +258,8 @@
     <!-- Tasks -->
     <section class="mt-6">
       <div class="flex items-center justify-between">
-        <h2 class="text-lg font-semibold tracking-tight">Tasks</h2>
-        <div class="text-xs text-white/60">Tap a card to claim.</div>
+        <h2 id="tasksTitle" class="text-lg font-semibold tracking-tight">Tasks</h2>
+        <div id="tasksHint" class="text-xs text-white/60">Tap a card to claim.</div>
       </div>
 
       <div id="tasks" class="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -265,11 +279,23 @@
       "use strict";
 
       const STORAGE_KEY = "star_balance_v1";
+      const LANG_KEY = "star_lang_v1";
 
       const ui = {
         balance: document.getElementById("balance"),
         openBtn: document.getElementById("openBtn"),
         resetBtn: document.getElementById("resetBtn"),
+        langSelect: document.getElementById("langSelect"),
+        brandName: document.getElementById("brandName"),
+        appTitle: document.getElementById("appTitle"),
+        balanceLabel: document.getElementById("balanceLabel"),
+        heroPill: document.getElementById("heroPill"),
+        heroTitle: document.getElementById("heroTitle"),
+        heroDesc: document.getElementById("heroDesc"),
+        costLabel: document.getElementById("costLabel"),
+        tipText: document.getElementById("tipText"),
+        tasksTitle: document.getElementById("tasksTitle"),
+        tasksHint: document.getElementById("tasksHint"),
         reelTrack: document.getElementById("reelTrack"),
         reelViewport: document.getElementById("reelViewport"),
         pointer: document.getElementById("pointer"),
@@ -285,7 +311,118 @@
         cardWidth: 0,
         gap: 0,
         lastCenteredIndex: null,
+        lang: "en",
       };
+
+      const i18n = {
+        en: {
+          brandName: "Star Casino",
+          appTitle: "Case Opener",
+          balanceLabel: "Star Balance",
+          heroPill: "Stars Theme • Glassmorphism • Dark Mode",
+          heroTitle: "Open a Cosmic Case",
+          heroDesc: "Pay 100 stars to spin. The winning prize is pre-selected, then the reel lands with a precise slow finish.",
+          costLabel: "Cost",
+          openCase: "Open Case",
+          reset: "Reset",
+          tip: "Tip: complete tasks below to farm stars.",
+          lastWin: "Last win: {value} stars ({rarity})",
+          lastWinEmpty: "Last win: —",
+          tasksTitle: "Tasks",
+          tasksHint: "Tap a card to claim.",
+          reward: "+{value} ✦",
+          readyIn: "Ready in {time}",
+          common: "Common",
+          rare: "Rare",
+          legendary: "Legendary",
+          task_daily_title: "Daily Check-in",
+          task_daily_desc: "Claim a quick reward.",
+          task_watch_title: "Watch a Star Ad",
+          task_watch_desc: "Pretend you watched it.",
+          task_share_title: "Share the Casino",
+          task_share_desc: "Tell a friend about the stars.",
+          task_win_title: "Win Streak Boost",
+          task_win_desc: "Claim once per hour.",
+          task_quest_title: "Cosmic Quest",
+          task_quest_desc: "Complete a tiny mission.",
+          task_bonus_title: "Legendary Bonus",
+          task_bonus_desc: "Rare drop, rare claim.",
+        },
+        ru: {
+          brandName: "Star Casino",
+          appTitle: "Кейс-Опенер",
+          balanceLabel: "Баланс",
+          heroPill: "Звёзды • Стекло • Тёмная тема",
+          heroTitle: "Открой Космический Кейс",
+          heroDesc: "Заплати 100 звёзд за прокрутку. Победный приз выбирается заранее, а затем лента точно останавливается на нём.",
+          costLabel: "Цена",
+          openCase: "Открыть кейс",
+          reset: "Сброс",
+          tip: "Совет: выполняй задания ниже, чтобы фармить звёзды.",
+          lastWin: "Последний выигрыш: {value} звёзд ({rarity})",
+          lastWinEmpty: "Последний выигрыш: —",
+          tasksTitle: "Задания",
+          tasksHint: "Нажми на карточку, чтобы забрать.",
+          reward: "+{value} ✦",
+          readyIn: "Доступно через {time}",
+          common: "Обычный",
+          rare: "Редкий",
+          legendary: "Легендарный",
+          task_daily_title: "Ежедневный бонус",
+          task_daily_desc: "Забери быстрый наградной бонус.",
+          task_watch_title: "Посмотреть рекламу",
+          task_watch_desc: "Сделаем вид, что посмотрел.",
+          task_share_title: "Поделиться казино",
+          task_share_desc: "Расскажи другу про звёзды.",
+          task_win_title: "Буст за серию",
+          task_win_desc: "Забрать раз в час.",
+          task_quest_title: "Космический квест",
+          task_quest_desc: "Выполни маленькое задание.",
+          task_bonus_title: "Легендарный бонус",
+          task_bonus_desc: "Редкая награда, редкий клейм.",
+        },
+      };
+
+      function t(key, vars) {
+        const dict = i18n[state.lang] || i18n.en;
+        let s = dict[key] ?? i18n.en[key] ?? key;
+        if (vars) {
+          for (const [k, v] of Object.entries(vars)) {
+            s = s.replaceAll(`{${k}}`, String(v));
+          }
+        }
+        return s;
+      }
+
+      function setLang(lang) {
+        state.lang = (lang === "ru" || lang === "en") ? lang : "en";
+        localStorage.setItem(LANG_KEY, state.lang);
+        if (ui.langSelect) ui.langSelect.value = state.lang;
+
+        if (ui.brandName) ui.brandName.textContent = t("brandName");
+        if (ui.appTitle) ui.appTitle.textContent = t("appTitle");
+        if (ui.balanceLabel) ui.balanceLabel.textContent = t("balanceLabel");
+        if (ui.heroPill) ui.heroPill.textContent = t("heroPill");
+        if (ui.heroTitle) ui.heroTitle.textContent = t("heroTitle");
+        if (ui.heroDesc) ui.heroDesc.textContent = t("heroDesc");
+        if (ui.costLabel) ui.costLabel.textContent = t("costLabel");
+        if (ui.openBtn) ui.openBtn.textContent = t("openCase");
+        if (ui.resetBtn) ui.resetBtn.textContent = t("reset");
+        if (ui.tipText) ui.tipText.textContent = t("tip");
+        if (ui.tasksTitle) ui.tasksTitle.textContent = t("tasksTitle");
+        if (ui.tasksHint) ui.tasksHint.textContent = t("tasksHint");
+
+        const unit = state.lang === "ru" ? "звёзд" : "stars";
+        document.querySelectorAll('[data-i18n="starsUnit"]').forEach((el) => {
+          el.textContent = unit;
+        });
+
+        if (ui.lastWin && (ui.lastWin.textContent || "").trim().length === 0) {
+          ui.lastWin.textContent = t("lastWinEmpty");
+        }
+
+        renderTasks();
+      }
 
       function clamp(n, min, max) {
         return Math.max(min, Math.min(max, n));
@@ -449,7 +586,9 @@
           styles.badge,
           "backdrop-blur",
         ].join(" ");
-        badge.textContent = item.rarity;
+        if (item.rarity === "Legendary") badge.textContent = t("legendary");
+        else if (item.rarity === "Rare") badge.textContent = t("rare");
+        else badge.textContent = t("common");
 
         const star = document.createElement("div");
         star.className = "absolute -bottom-4 -right-4 text-[72px] opacity-15 rotate-12 select-none";
@@ -459,7 +598,7 @@
         value.className = "relative text-center";
         value.innerHTML = `
           <div class="text-2xl sm:text-3xl font-semibold tabular-nums">${formatInt(item.value)}</div>
-          <div class="text-xs text-white/70 mt-1">stars</div>
+          <div data-i18n="starsUnit" class="text-xs text-white/70 mt-1">stars</div>
         `;
 
         el.appendChild(glow);
@@ -519,6 +658,7 @@
       }
 
       function getCenteredIndexFromX(x) {
+        // Legacy helper (kept for non-spin usage).
         // x is translateX in px (negative moves left). We want which card center aligns with viewport center.
         const viewportRect = ui.reelViewport.getBoundingClientRect();
         const viewportCenter = viewportRect.width / 2;
@@ -552,14 +692,24 @@
 
         const duration = 4.6;
 
+        // Cache for onUpdate to avoid expensive layout calls on mobile.
+        const trackPaddingLeft = 0;
+        const maxIndex = state.displayItems.length - 1;
+
+        const getCenteredFast = (x) => {
+          const iFloat = (viewportCenter - (x + trackPaddingLeft) - state.cardWidth / 2) / step;
+          return clamp(Math.round(iFloat), 0, maxIndex);
+        };
+
         return new Promise((resolve) => {
           gsap.to(ui.reelTrack, {
             x: targetX,
             duration,
             ease: "power4.inOut",
+            force3D: true,
             onUpdate: () => {
-              const x = gsap.getProperty(ui.reelTrack, "x");
-              const centered = getCenteredIndexFromX(Number(x));
+              const x = Number(gsap.getProperty(ui.reelTrack, "x"));
+              const centered = getCenteredFast(x);
               if (state.lastCenteredIndex === null) {
                 state.lastCenteredIndex = centered;
               } else if (centered !== state.lastCenteredIndex) {
@@ -573,10 +723,11 @@
                 x: targetX,
                 duration: 0.18,
                 ease: "power2.out",
+                force3D: true,
                 onComplete: () => {
                   // Seamless snap back from 3rd copy to the middle copy (same visuals).
                   const snapX = targetX + n * step;
-                  gsap.set(ui.reelTrack, { x: snapX });
+                  gsap.set(ui.reelTrack, { x: snapX, force3D: true });
                   resolve({ baseWinIndex, displayWinIndex: baseWinIndex + n, snapX });
                 },
               });
@@ -628,7 +779,8 @@
         // Award after the animation ends
         addBalance(winItem.value);
 
-        ui.lastWin.textContent = `Last win: ${formatInt(winItem.value)} stars (${winItem.rarity})`;
+        const rarityLabel = winItem.rarity === "Legendary" ? t("legendary") : (winItem.rarity === "Rare" ? t("rare") : t("common"));
+        ui.lastWin.textContent = t("lastWin", { value: formatInt(winItem.value), rarity: rarityLabel });
 
         // Winner pulse
         const winnerEl = ui.reelTrack.children[result.displayWinIndex];
@@ -644,12 +796,12 @@
       function taskDefs() {
         // Lightweight "keep playing" loop.
         return [
-          { id: "daily", title: "Daily Check-in", desc: "Claim a quick reward.", reward: 250, cooldownMs: 1000 * 60 * 60 * 24 },
-          { id: "watch", title: "Watch a Star Ad", desc: "Pretend you watched it.", reward: 150, cooldownMs: 1000 * 60 * 10 },
-          { id: "share", title: "Share the Casino", desc: "Tell a friend about the stars.", reward: 200, cooldownMs: 1000 * 60 * 30 },
-          { id: "win", title: "Win Streak Boost", desc: "Claim once per hour.", reward: 300, cooldownMs: 1000 * 60 * 60 },
-          { id: "quest", title: "Cosmic Quest", desc: "Complete a tiny mission.", reward: 400, cooldownMs: 1000 * 60 * 45 },
-          { id: "bonus", title: "Legendary Bonus", desc: "Rare drop, rare claim.", reward: 600, cooldownMs: 1000 * 60 * 90 },
+          { id: "daily", titleKey: "task_daily_title", descKey: "task_daily_desc", reward: 250, cooldownMs: 1000 * 60 * 60 * 24 },
+          { id: "watch", titleKey: "task_watch_title", descKey: "task_watch_desc", reward: 150, cooldownMs: 1000 * 60 * 10 },
+          { id: "share", titleKey: "task_share_title", descKey: "task_share_desc", reward: 200, cooldownMs: 1000 * 60 * 30 },
+          { id: "win", titleKey: "task_win_title", descKey: "task_win_desc", reward: 300, cooldownMs: 1000 * 60 * 60 },
+          { id: "quest", titleKey: "task_quest_title", descKey: "task_quest_desc", reward: 400, cooldownMs: 1000 * 60 * 45 },
+          { id: "bonus", titleKey: "task_bonus_title", descKey: "task_bonus_desc", reward: 600, cooldownMs: 1000 * 60 * 90 },
         ];
       }
 
@@ -702,14 +854,14 @@
 
           const left = timeLeftMs(t);
           const rightLabel = claimable
-            ? `+${formatInt(t.reward)} ✦`
-            : `Ready in ${fmtTime(left)}`;
+            ? t("reward", { value: formatInt(t.reward) })
+            : t("readyIn", { time: fmtTime(left) });
 
           el.innerHTML = `
             <div class="flex items-start justify-between gap-3">
               <div>
-                <div class="font-semibold">${t.title}</div>
-                <div class="text-sm text-white/70 mt-1">${t.desc}</div>
+                <div class="font-semibold">${t(t.titleKey)}</div>
+                <div class="text-sm text-white/70 mt-1">${t(t.descKey)}</div>
               </div>
               <div class="shrink-0 text-sm font-semibold ${claimable ? "text-gold-300" : "text-white/60"}">${rightLabel}</div>
             </div>
@@ -730,6 +882,9 @@
       }
 
       function init() {
+        const savedLang = localStorage.getItem(LANG_KEY);
+        state.lang = (savedLang === "ru" || savedLang === "en") ? savedLang : "en";
+
         state.balance = readBalance();
         ui.balance.textContent = formatInt(state.balance);
 
@@ -751,6 +906,12 @@
         });
 
         ui.openBtn.addEventListener("click", openCase);
+        if (ui.langSelect) {
+          ui.langSelect.value = state.lang;
+          ui.langSelect.addEventListener("change", (e) => {
+            setLang(e.target.value);
+          });
+        }
         ui.resetBtn.addEventListener("click", () => {
           if (state.spinning) return;
           setBalance(1500, { animate: true });
@@ -758,7 +919,7 @@
           state.displayItems = buildDisplayItems(state.items);
           renderReel(state.displayItems);
           renderTasks();
-          ui.lastWin.textContent = "Last win: —";
+          ui.lastWin.textContent = t("lastWinEmpty");
         });
 
         window.addEventListener("resize", () => {
@@ -766,7 +927,8 @@
           measureCardMetrics();
         });
 
-        renderTasks();
+        setLang(state.lang);
+        ui.lastWin.textContent = t("lastWinEmpty");
 
         // Subtle ambient motion on CTA
         gsap.to(ui.openBtn, { boxShadow: "0 0 0 1px rgba(168,85,247,.22), 0 24px 80px rgba(0,0,0,.55)", duration: 2.2, yoyo: true, repeat: -1, ease: "sine.inOut" });
