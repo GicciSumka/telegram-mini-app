@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Вайб-чекер</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: white;
+            text-align: center;
+            padding: 16px;
+            box-sizing: border-box;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 32px 24px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
+            width: 100%;
+            max-width: 320px;
+        }
+        h1 {
+            margin: 0 0 8px;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        .greeting {
+            font-size: 20px;
+            margin-bottom: 24px;
+            opacity: 0.9;
+        }
+        .vibe-meter {
+            width: 100%;
+            height: 12px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 20px;
+            margin: 24px 0;
+            overflow: hidden;
+        }
+        .vibe-fill {
+            width: 73%; /* рандомный вайб */
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb);
+            border-radius: 20px;
+            box-shadow: 0 0 10px #48dbfb;
+        }
+        button {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            font-size: 18px;
+            padding: 14px 28px;
+            border-radius: 60px;
+            backdrop-filter: blur(5px);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            width: 100%;
+            margin-top: 8px;
+        }
+        button:active {
+            background: rgba(255,255,255,0.4);
+            transform: scale(0.97);
+        }
+        .hint {
+            font-size: 14px;
+            opacity: 0.6;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>✨ Вайб-чекер ✨</h1>
+        <div class="greeting" id="greeting">Загружаем...</div>
+        <div class="vibe-meter">
+            <div class="vibe-fill" id="vibeFill"></div>
+        </div>
+        <button id="actionBtn">Прожми вайб</button>
+        <div class="hint" id="hint">Твой вайб сегодня: стабилен</div>
+    </div>
+
+    <script>
+        // Инициализация Telegram Web App
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // Растягиваем на весь экран
+        
+        // Устанавливаем цвет верхней панели в стиле приложения
+        tg.setHeaderColor('#1a1a2e');
+        tg.setBackgroundColor('#1a1a2e');
+
+        // Получаем данные пользователя
+        const user = tg.initDataUnsafe?.user;
+        const greetingEl = document.getElementById('greeting');
+        const vibeFill = document.getElementById('vibeFill');
+        const hint = document.getElementById('hint');
+        const btn = document.getElementById('actionBtn');
+
+        // Функция приветствия
+        if (user) {
+            greetingEl.textContent = `Привет, ${user.first_name}!`;
+        } else {
+            greetingEl.textContent = `Привет, странник!`;
+            // В режиме отладки в браузере можно подставить тестовое имя
+            if (!tg.initData.length) {
+                greetingEl.textContent = `Привет, Тестер!`;
+            }
+        }
+
+        // Массив вайб-фраз
+        const vibes = [
+            "Чилл на 100%",
+            "Боевой настрой",
+            "Креативный поток",
+            "Легкая меланхолия",
+            "Вихрь идей",
+            "Дзен-режим",
+            "Энергия на нуле"
+        ];
+
+        // Случайный вайб при нажатии
+        btn.addEventListener('click', () => {
+            const randomPercent = Math.floor(Math.random() * 60) + 20; // от 20 до 80
+            const randomVibe = vibes[Math.floor(Math.random() * vibes.length)];
+            
+            vibeFill.style.width = randomPercent + '%';
+            hint.textContent = `Твой вайб сегодня: ${randomVibe}`;
+            
+            // Отправляем данные обратно в бота (если нужно)
+            tg.sendData(JSON.stringify({
+                action: 'vibe_checked',
+                percent: randomPercent,
+                vibe: randomVibe
+            }));
+            
+            // Тактильный отклик (если поддерживается)
+            if (tg.HapticFeedback) {
+                tg.HapticFeedback.impactOccurred('medium');
+            }
+        });
+
+        // Если открыто в браузере не из Telegram, показываем кнопку всё равно работает
+        if (!tg.initData.length) {
+            console.log('Открыто вне Telegram, но всё работает для теста');
+        }
+        
+        // Сообщаем Telegram, что приложение готово
+        tg.ready();
+    </script>
+</body>
+</html>
