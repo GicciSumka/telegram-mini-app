@@ -554,8 +554,8 @@
           return values[0];
         }
 
-        // Smaller pool for better mobile performance
-        const count = state.isMobile ? 24 : 36;
+        // Larger pool for mobile with slow spin to look more impressive
+        const count = state.isMobile ? 32 : 40;
         const arr = [];
         for (let i = 0; i < count; i++) {
           const value = pick();
@@ -718,8 +718,8 @@
 
         state.lastCenteredIndex = null;
 
-        // Slower, more dramatic spin (slightly longer on mobile for better feel)
-        const duration = state.isMobile ? 3.8 : 5.2;
+        // Much slower spin to give mobile GPU time to render frames smoothly
+        const duration = state.isMobile ? 5.5 : 6.0;
 
         // Cache for onUpdate to avoid expensive layout calls on mobile.
         const trackPaddingLeft = 0;
