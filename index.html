@@ -103,7 +103,7 @@
     }
 
     /* Reel uses transform for GSAP */
-    #reelTrack { will-change: transform; }
+    #reelTrack { will-change: transform; backface-visibility: hidden; }
 
     /* Hide scrollbar in reel */
     .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -525,158 +525,83 @@
         if (rarity === "Legendary") {
           return {
             ring: "border-gold-500/50",
-            bg: "bg-gradient-to-br from-gold-500/20 via-white/5 to-neon-600/10",
-            badge: "bg-gold-500/15 border-gold-500/35 text-gold-300",
-            glow: "shadow-[0_0_0_1px_rgba(251,191,36,.25),0_0_34px_rgba(251,191,36,.12)]",
+            bg: "bg-gradient-to-br from-gold-600/15 to-gold-500/10",
+            badge: "bg-gold-500/20 border-gold-500/40 text-gold-300",
+            glow: "shadow-[0_0_20px_rgba(251,191,36,.35)]",
           };
         }
         if (rarity === "Rare") {
           return {
-            ring: "border-neon-500/45",
-            bg: "bg-gradient-to-br from-neon-600/25 via-white/5 to-white/0",
-            badge: "bg-neon-600/15 border-neon-500/30 text-neon-500",
-            glow: "shadow-[0_0_0_1px_rgba(168,85,247,.20),0_0_36px_rgba(168,85,247,.12)]",
+            ring: "border-neon-500/50",
+            bg: "bg-gradient-to-br from-neon-700/15 to-neon-600/10",
+            badge: "bg-neon-600/20 border-neon-500/40 text-neon-400",
+            glow: "shadow-[0_0_20px_rgba(168,85,247,.35)]",
           };
         }
         return {
-          ring: "border-white/10",
-          bg: "bg-white/5",
-          badge: "bg-white/5 border-white/10 text-white/70",
-          glow: "shadow-[0_0_0_1px_rgba(255,255,255,.06),0_0_30px_rgba(0,0,0,.2)]",
+          ring: "border-white/15",
+          bg: "bg-gradient-to-br from-white/5 to-white/10",
+          badge: "bg-white/10 border-white/20 text-white/80",
+          glow: "",
         };
       }
 
       function buildItemPool() {
-        // Weighted values to create a "casino" feel.
-        const values = [10, 20, 30, 50, 75, 100, 150, 200, 300, 500, 1000, 2500];
-        const weights = [28, 24, 20, 16, 12, 10, 8, 6, 4, 3, 2, 1];
-
-        function pick() {
-          const total = weights.reduce((a, b) => a + b, 0);
-          let r = Math.random() * total;
-          for (let i = 0; i < values.length; i++) {
-            r -= weights[i];
-            if (r <= 0) return values[i];
-          }
-          return values[0];
-        }
-
-        // Larger pool for mobile with slow spin to look more impressive
-        const count = state.isMobile ? 32 : 40;
-        const arr = [];
-        for (let i = 0; i < count; i++) {
-          const value = pick();
-          const rarity = rarityForValue(value);
-          arr.push({ id: cryptoRandomId(), value, rarity });
-        }
-        return arr;
+        const items = [];
+        // Common (70%)
+        for (let i = 0; i < 35; i++) items.push({ value: 10 + Math.floor(Math.random() * 91), rarity: "Common" });
+        // Rare (25%)
+        for (let i = 0; i < 12; i++) items.push({ value: 100 + Math.floor(Math.random() * 401), rarity: "Rare" });
+        // Legendary (5%)
+        for (let i = 0; i < 3; i++) items.push({ value: 500 + Math.floor(Math.random() * 1501), rarity: "Legendary" });
+        return items;
       }
 
-      function cryptoRandomId() {
-        // Avoid adding dependencies; this is enough for DOM keys.
-        try {
-          const buf = new Uint32Array(2);
-          crypto.getRandomValues(buf);
-          return Array.from(buf).map(n => n.toString(16)).join("");
-        } catch {
-          return String(Math.random()).slice(2) + String(Date.now());
-        }
-      }
-
-      function createCardEl(item) {
-        const styles = rarityStyles(item.rarity);
-
-        const el = document.createElement("div");
-        el.className = [
-          "min-w-[132px] sm:min-w-[160px]",
-          "h-[104px] sm:h-[120px]",
-          "rounded-2xl",
-          "border",
-          styles.ring,
-          styles.bg,
-          styles.glow,
-          "relative",
-          "overflow-hidden",
-          "flex",
-          "items-center",
-          "justify-center",
-          "px-3",
-          "transition-transform",
-        ].join(" ");
-
-        el.dataset.value = String(item.value);
-        el.dataset.rarity = item.rarity;
-
-        const glow = document.createElement("div");
-        glow.className = "absolute -inset-16 bg-gradient-to-r from-neon-600/0 via-white/8 to-gold-500/0 rotate-12 blur-2xl opacity-70";
-
-        const badge = document.createElement("div");
-        badge.className = [
-          "absolute",
-          "top-2 left-2",
-          "text-[10px]",
-          "px-2 py-1",
-          "rounded-full",
-          "border",
-          styles.badge,
-          state.isMobile ? "" : "backdrop-blur",
-        ].filter(Boolean).join(" ");
-        if (item.rarity === "Legendary") badge.textContent = t("legendary");
-        else if (item.rarity === "Rare") badge.textContent = t("rare");
-        else badge.textContent = t("common");
-
-        const star = document.createElement("div");
-        star.className = "absolute -bottom-4 -right-4 text-[72px] opacity-15 rotate-12 select-none";
-        star.textContent = "✦";
-
-        const value = document.createElement("div");
-        value.className = "relative text-center";
-        value.innerHTML = `
-          <div class="text-2xl sm:text-3xl font-semibold tabular-nums">${formatInt(item.value)}</div>
-          <div data-i18n="starsUnit" class="text-xs text-white/70 mt-1">stars</div>
-        `;
-
-        el.appendChild(glow);
-        el.appendChild(badge);
-        el.appendChild(star);
-        el.appendChild(value);
-        return el;
+      function buildDisplayItems(items) {
+        // Create 3 copies for seamless looping
+        const first = items.map((it, i) => ({ ...it, id: `item-${i}` }));
+        const second = items.map((it, i) => ({ ...it, id: `item-${i}-copy1` }));
+        const third = items.map((it, i) => ({ ...it, id: `item-${i}-copy2` }));
+        return [...first, ...second, ...third];
       }
 
       function renderReel(items) {
         ui.reelTrack.innerHTML = "";
         const frag = document.createDocumentFragment();
-        for (const item of items) frag.appendChild(createCardEl(item));
+        for (const item of items) {
+          const styles = rarityStyles(item.rarity);
+          const el = document.createElement("div");
+          el.id = item.id;
+          el.className = `
+            relative flex-shrink-0 w-28 h-24 rounded-xl flex flex-col items-center justify-center p-2
+            ${styles.bg} ${styles.ring} ${styles.glow}
+          `;
+          el.innerHTML = `
+            <div class="absolute inset-0 rounded-xl bg-gradient-to-b from-white/5 to-transparent"></div>
+            <div class="text-xs text-white/70">${t("common")}</div>
+            <div class="text-xl font-semibold text-white mt-1">${item.value} <span class="text-gold-400">✦</span></div>
+            <div class="absolute -top-2 px-2 py-0.5 rounded-full text-xs font-semibold ${styles.badge}">
+              ${t(item.rarity.toLowerCase())}
+            </div>
+            <div class="absolute -inset-1 rounded-xl blur-lg ${item.rarity === "Legendary" ? "bg-gold-500/20" : item.rarity === "Rare" ? "bg-neon-600/20" : ""}"></div>
+          `;
+          frag.appendChild(el);
+        }
         ui.reelTrack.appendChild(frag);
       }
 
-      function buildDisplayItems(baseItems) {
-        // Duplicate the reel 3x so we can spin a long distance without showing empty space
-        // and then snap back seamlessly.
-        const copies = 3;
-        const out = [];
-        for (let c = 0; c < copies; c++) {
-          for (const it of baseItems) {
-            out.push({ ...it, id: `${it.id}_${c}` });
-          }
-        }
-        return out;
-      }
-
       function measureCardMetrics() {
-        const first = ui.reelTrack.querySelector(":scope > div");
-        if (!first) return;
-        const rect = first.getBoundingClientRect();
-        state.cardWidth = rect.width;
-
-        const cs = getComputedStyle(ui.reelTrack);
-        // Tailwind gap is column-gap for flex
-        const gap = parseFloat(cs.columnGap || cs.gap || "0");
-        state.gap = Number.isFinite(gap) ? gap : 0;
+        if (!state.items.length) return;
+        const firstCard = ui.reelTrack.children[0];
+        if (firstCard) {
+          state.cardWidth = firstCard.offsetWidth;
+          // Calculate gap dynamically from computed style
+          const computedStyle = window.getComputedStyle(ui.reelTrack);
+          state.gap = parseFloat(computedStyle.gap);
+        }
       }
 
       function pointerTick() {
-        // Micro tick animation (vibrate + slight scale), plays when a card crosses center.
         gsap.killTweensOf(ui.pointer);
         gsap.fromTo(
           ui.pointer,
@@ -750,8 +675,8 @@
           gsap.to(ui.reelTrack, {
             x: targetX,
             duration,
-            ease: state.isMobile ? "power2.inOut" : "power4.inOut",
-            force3D: true,
+            ease: `power3.out`,
+            force3D: true, // Added force3D here
             onUpdate: () => {
               const x = Number(gsap.getProperty(ui.reelTrack, "x"));
               const centered = getCenteredFast(x);
