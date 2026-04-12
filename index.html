@@ -1,187 +1,779 @@
-<!DOCTYPE html>
-<html lang="ru">
+<!doctype html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Star Case Opener</title>
-    <script src="https://cloudflare.com"></script>
-    <link href="https://googleapis.com" rel="stylesheet">
-    <style>
-        :root {
-            --glass: rgba(255, 255, 255, 0.07);
-            --border: rgba(255, 255, 255, 0.15);
-            --accent: #FFD700;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Star Casino — Case Opener</title>
 
-        body {
-            margin: 0; background: #08080a; color: white;
-            font-family: 'Inter', sans-serif; height: 100vh;
-            display: flex; justify-content: center; align-items: center;
-        }
-
-        .app-container {
-            width: 400px; height: 750px;
-            background: radial-gradient(circle at top, #252535, #08080a);
-            border-radius: 45px; border: 1px solid var(--border);
-            display: flex; flex-direction: column; padding: 30px;
-            position: relative; overflow: hidden; box-shadow: 0 50px 100px rgba(0,0,0,0.8);
-        }
-
-        /* Верхняя панель */
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
-        .balance-box { background: var(--glass); padding: 10px 20px; border-radius: 20px; border: 1px solid var(--border); }
-        .balance-box span { color: var(--accent); font-weight: 900; font-size: 1.2em; }
-
-        /* Зона Кейса */
-        .case-area {
-            position: relative; width: 100%; height: 180px;
-            background: rgba(0,0,0,0.3); border-radius: 25px;
-            margin-bottom: 40px; overflow: hidden;
-            border: 2px solid var(--border);
-        }
-
-        /* Центральный указатель */
-        .pointer {
-            position: absolute; left: 50%; top: 0; bottom: 0;
-            width: 4px; background: var(--accent); z-index: 10;
-            transform: translateX(-50%); box-shadow: 0 0 20px var(--accent);
-        }
-
-        /* Лента с призами */
-        .reel {
-            display: flex; align-items: center; position: absolute;
-            left: 0; top: 0; height: 100%; will-change: transform;
-        }
-
-        .item {
-            min-width: 120px; height: 120px; margin: 0 10px;
-            background: var(--glass); border-radius: 20px;
-            display: flex; flex-direction: column; justify-content: center;
-            align-items: center; border: 1px solid var(--border);
-        }
-
-        .item.rare { border-color: #a335ee; background: rgba(163, 53, 238, 0.1); }
-        .item.epic { border-color: #ff8000; background: rgba(255, 128, 0, 0.1); }
-        .item.legendary { border-color: var(--accent); background: rgba(255, 215, 0, 0.1); }
-
-        .item img { width: 50px; margin-bottom: 10px; filter: drop-shadow(0 0 5px rgba(255,255,255,0.5)); }
-        .item span { font-weight: 700; font-size: 14px; }
-
-        /* Кнопка */
-        .open-btn {
-            background: linear-gradient(135deg, #ffd700, #ff8c00);
-            border: none; padding: 20px; border-radius: 25px;
-            color: #000; font-weight: 900; font-size: 1.1em;
-            cursor: pointer; transition: 0.3s;
-            box-shadow: 0 15px 30px rgba(255, 140, 0, 0.3);
-        }
-
-        .open-btn:disabled { opacity: 0.5; filter: grayscale(1); cursor: not-allowed; }
-
-        .task-list { flex-grow: 1; overflow-y: auto; margin-top: 30px; }
-        .task { background: var(--glass); padding: 15px; border-radius: 20px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); }
-    </style>
-</head>
-<body>
-
-    <div class="app-container">
-        <div class="header">
-            <div><small style="opacity: 0.5;">LUCKY STAR</small></div>
-            <div class="balance-box">⭐ <span id="balance">500</span></div>
-        </div>
-
-        <div class="case-area">
-            <div class="pointer"></div>
-            <div class="reel" id="reel">
-                <!-- Элементы генерируются скриптом -->
-            </div>
-        </div>
-
-        <button class="open-btn" id="spinBtn" onclick="startSpin()">ОТКРЫТЬ КЕЙС (50 ⭐)</button>
-
-        <div class="task-list">
-            <div style="font-size: 12px; opacity: 0.5; margin-bottom: 15px; letter-spacing: 1px;">БЕСПЛАТНЫЕ ЗВЕЗДЫ</div>
-            <div class="task" onclick="addMoney(100)">
-                <span>Смотреть рекламу</span>
-                <b style="color: var(--accent);">+100</b>
-            </div>
-            <div class="task" onclick="addMoney(50)">
-                <span>Daily Bonus</span>
-                <b style="color: var(--accent);">+50</b>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        const reel = document.getElementById('reel');
-        const balanceEl = document.getElementById('balance');
-        const spinBtn = document.getElementById('spinBtn');
-        
-        let balance = 500;
-        const itemWidth = 140; // ширина + margin
-        const itemsData = [
-            { name: '10', type: 'common', val: 10 },
-            { name: '25', type: 'common', val: 25 },
-            { name: '50', type: 'rare', val: 50 },
-            { name: '100', type: 'epic', val: 100 },
-            { name: '500', type: 'legendary', val: 500 },
-            { name: '0', type: 'common', val: 0 },
-        ];
-
-        // Заполняем ленту
-        function createReel() {
-            reel.innerHTML = '';
-            for (let i = 0; i < 50; i++) {
-                const randomItem = itemsData[Math.floor(Math.random() * itemsData.length)];
-                const div = document.createElement('div');
-                div.className = `item ${randomItem.type}`;
-                div.innerHTML = `<span>⭐</span><b>${randomItem.name}</b>`;
-                reel.appendChild(div);
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ink: {
+              950: "#060712",
+              900: "#0a0b1b",
+              850: "#0d0f22",
+            },
+            neon: {
+              500: "#a855f7",
+              600: "#9333ea",
+              700: "#7e22ce",
+            },
+            gold: {
+              300: "#ffe7a3",
+              400: "#ffd56a",
+              500: "#fbbf24",
+              600: "#d97706",
             }
+          },
+          boxShadow: {
+            glow: "0 0 0 1px rgba(168,85,247,.25), 0 20px 60px rgba(0,0,0,.6)",
+            innerGlass: "inset 0 1px 0 rgba(255,255,255,.12)",
+          },
+          keyframes: {
+            floaty: {
+              "0%, 100%": { transform: "translateY(0px)" },
+              "50%": { transform: "translateY(-6px)" },
+            }
+          },
+          animation: {
+            floaty: "floaty 8s ease-in-out infinite",
+          }
+        },
+      }
+    }
+  </script>
+
+  <style>
+    :root {
+      color-scheme: dark;
+    }
+
+    /* Stars background */
+    .starfield {
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      background:
+        radial-gradient(1200px 700px at 20% 10%, rgba(168,85,247,.25), transparent 65%),
+        radial-gradient(900px 600px at 80% 30%, rgba(251,191,36,.18), transparent 60%),
+        radial-gradient(700px 500px at 60% 90%, rgba(168,85,247,.18), transparent 60%),
+        linear-gradient(180deg, #040511 0%, #07081a 50%, #050612 100%);
+      overflow: hidden;
+    }
+
+    .starfield::before,
+    .starfield::after {
+      content: "";
+      position: absolute;
+      inset: -40px;
+      background-image:
+        radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,.8) 50%, transparent 55%),
+        radial-gradient(1px 1px at 30% 80%, rgba(255,255,255,.65) 50%, transparent 55%),
+        radial-gradient(1px 1px at 55% 35%, rgba(255,255,255,.75) 50%, transparent 55%),
+        radial-gradient(1px 1px at 75% 60%, rgba(255,255,255,.7) 50%, transparent 55%),
+        radial-gradient(1px 1px at 90% 15%, rgba(255,255,255,.6) 50%, transparent 55%),
+        radial-gradient(2px 2px at 12% 62%, rgba(168,85,247,.55) 50%, transparent 60%),
+        radial-gradient(2px 2px at 82% 72%, rgba(251,191,36,.45) 50%, transparent 60%);
+      opacity: .9;
+      filter: blur(.2px);
+      animation: drift 40s linear infinite;
+    }
+
+    .starfield::after {
+      opacity: .55;
+      filter: blur(.6px);
+      animation-duration: 70s;
+    }
+
+    @keyframes drift {
+      from { transform: translate3d(0, 0, 0); }
+      to { transform: translate3d(-80px, 60px, 0); }
+    }
+
+    /* Glass panel */
+    .glass {
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow: 0 0 0 1px rgba(168,85,247,.12), 0 20px 60px rgba(0,0,0,.55);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+
+    /* Reel uses transform for GSAP */
+    #reelTrack { will-change: transform; }
+
+    /* Hide scrollbar in reel */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* Soft vignette */
+    .vignette {
+      pointer-events: none;
+      position: absolute;
+      inset: 0;
+      border-radius: 24px;
+      background:
+        radial-gradient(60% 100% at 50% 50%, rgba(0,0,0,0) 0%, rgba(0,0,0,.55) 90%),
+        linear-gradient(90deg, rgba(6,7,18,.95) 0%, rgba(6,7,18,0) 18%, rgba(6,7,18,0) 82%, rgba(6,7,18,.95) 100%);
+      opacity: .85;
+    }
+
+    /* Pointer */
+    .pointer {
+      width: 2px;
+      background: linear-gradient(180deg, rgba(255,231,163,0) 0%, rgba(255,213,106,1) 30%, rgba(251,191,36,1) 70%, rgba(251,191,36,0) 100%);
+      filter: drop-shadow(0 0 14px rgba(251,191,36,.35));
+    }
+
+    /* Subtle noise overlay */
+    .noise {
+      pointer-events: none;
+      position: absolute;
+      inset: 0;
+      opacity: .08;
+      mix-blend-mode: overlay;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" stitchTiles="stitch"/></filter><rect width="240" height="240" filter="url(%23n)" opacity="0.55"/></svg>');
+      background-size: 240px 240px;
+    }
+
+    /* Respect reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      .starfield::before,
+      .starfield::after { animation: none; }
+    }
+  </style>
+</head>
+
+<body class="min-h-screen text-white bg-ink-950 selection:bg-neon-600/30 selection:text-white">
+  <div class="starfield" aria-hidden="true"></div>
+
+  <div class="mx-auto w-full max-w-6xl px-4 pb-10">
+    <!-- Top Bar -->
+    <header class="pt-5">
+      <div class="glass rounded-2xl px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="relative">
+            <div class="h-10 w-10 rounded-xl bg-gradient-to-br from-neon-600/50 to-gold-500/30 border border-white/10 shadow-innerGlass"></div>
+            <div class="absolute -inset-1 rounded-xl blur-xl bg-neon-600/20"></div>
+          </div>
+          <div>
+            <div class="text-sm text-white/70">Star Casino</div>
+            <div class="text-lg font-semibold tracking-tight">Case Opener</div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <div class="text-right">
+            <div class="text-xs text-white/60">Star Balance</div>
+            <div class="flex items-center gap-2 justify-end">
+              <span class="inline-flex items-center justify-center h-6 w-6 rounded-lg bg-gold-500/15 border border-gold-500/30">
+                <span class="text-gold-400">✦</span>
+              </span>
+              <span id="balance" class="text-xl font-semibold tabular-nums">0</span>
+            </div>
+          </div>
+          <button id="resetBtn" class="ml-2 px-3 py-2 rounded-xl glass hover:bg-white/10 transition text-sm text-white/80">Reset</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="mt-6">
+      <div class="glass rounded-3xl p-4 sm:p-6 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-60" aria-hidden="true">
+          <div class="absolute -top-24 -left-24 h-64 w-64 rounded-full bg-neon-600/25 blur-3xl"></div>
+          <div class="absolute -bottom-24 -right-24 h-64 w-64 rounded-full bg-gold-500/18 blur-3xl"></div>
+        </div>
+        <div class="relative">
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-white/5 text-xs text-white/70">
+                <span class="text-gold-400">✦</span>
+                <span>Stars Theme • Glassmorphism • Dark Mode</span>
+              </div>
+              <h1 class="mt-3 text-2xl sm:text-3xl font-semibold tracking-tight">Open a Cosmic Case</h1>
+              <p class="mt-1 text-sm text-white/70 max-w-xl">Pay 100 stars to spin. The winning prize is pre-selected, then the reel lands with a precise slow finish.</p>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <div class="rounded-2xl px-4 py-3 glass">
+                <div class="text-xs text-white/60">Cost</div>
+                <div class="text-lg font-semibold tabular-nums">100 <span class="text-gold-400">✦</span></div>
+              </div>
+              <button id="openBtn" class="px-5 py-3 rounded-2xl bg-gradient-to-r from-neon-600 to-neon-700 shadow-glow border border-white/10 hover:brightness-110 active:brightness-95 transition font-semibold">
+                Open Case
+              </button>
+            </div>
+          </div>
+
+          <!-- Reel -->
+          <div class="mt-5 relative">
+            <div class="glass rounded-3xl p-3 sm:p-4 relative overflow-hidden">
+              <div class="noise" aria-hidden="true"></div>
+
+              <div class="relative rounded-2xl overflow-hidden">
+                <div class="vignette" aria-hidden="true"></div>
+
+                <div class="absolute inset-y-0 left-1/2 -translate-x-1/2 z-20 flex items-center justify-center pointerWrap">
+                  <div id="pointer" class="pointer h-24 sm:h-28"></div>
+                  <div class="absolute -top-1 h-2 w-2 rounded-full bg-gold-500 shadow-[0_0_20px_rgba(251,191,36,.35)]"></div>
+                  <div class="absolute -bottom-1 h-2 w-2 rounded-full bg-gold-500 shadow-[0_0_20px_rgba(251,191,36,.35)]"></div>
+                </div>
+
+                <div id="reelViewport" class="relative overflow-hidden">
+                  <div id="reelTrack" class="flex gap-3 sm:gap-4 py-4 px-4 select-none">
+                    <!-- Cards injected by JS -->
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-3 flex items-center justify-between gap-3">
+                <div class="text-xs text-white/60">Tip: complete tasks below to farm stars.</div>
+                <div id="lastWin" class="text-xs text-white/70 text-right">Last win: —</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Tasks -->
+    <section class="mt-6">
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-semibold tracking-tight">Tasks</h2>
+        <div class="text-xs text-white/60">Tap a card to claim.</div>
+      </div>
+
+      <div id="tasks" class="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <!-- Tasks injected by JS -->
+      </div>
+    </section>
+
+    <footer class="mt-10 text-center text-xs text-white/50">
+      Built with Tailwind + GSAP • Balance saved in localStorage
+    </footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+
+  <script>
+    (function () {
+      "use strict";
+
+      const STORAGE_KEY = "star_balance_v1";
+
+      const ui = {
+        balance: document.getElementById("balance"),
+        openBtn: document.getElementById("openBtn"),
+        resetBtn: document.getElementById("resetBtn"),
+        reelTrack: document.getElementById("reelTrack"),
+        reelViewport: document.getElementById("reelViewport"),
+        pointer: document.getElementById("pointer"),
+        lastWin: document.getElementById("lastWin"),
+        tasks: document.getElementById("tasks"),
+      };
+
+      const state = {
+        balance: 0,
+        spinning: false,
+        items: [],
+        displayItems: [],
+        cardWidth: 0,
+        gap: 0,
+        lastCenteredIndex: null,
+      };
+
+      function clamp(n, min, max) {
+        return Math.max(min, Math.min(max, n));
+      }
+
+      function lerp(a, b, t) {
+        return a + (b - a) * t;
+      }
+
+      function readBalance() {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        const n = raw === null ? 1500 : Number(raw);
+        return Number.isFinite(n) ? Math.max(0, Math.floor(n)) : 1500;
+      }
+
+      function writeBalance(n) {
+        localStorage.setItem(STORAGE_KEY, String(Math.max(0, Math.floor(n))));
+      }
+
+      function formatInt(n) {
+        return new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(n);
+      }
+
+      function setBalance(next, { animate = true } = {}) {
+        const start = state.balance;
+        const end = Math.max(0, Math.floor(next));
+        state.balance = end;
+        writeBalance(end);
+
+        if (!animate) {
+          ui.balance.textContent = formatInt(end);
+          return;
         }
 
-        function startSpin() {
-            if (balance < 50) return alert('Мало звезд!');
-            
-            balance -= 50;
-            updateUI();
-            spinBtn.disabled = true;
+        const obj = { v: start };
+        gsap.to(obj, {
+          v: end,
+          duration: 0.65,
+          ease: "power2.out",
+          onUpdate: () => {
+            ui.balance.textContent = formatInt(Math.floor(obj.v));
+          },
+          onComplete: () => {
+            ui.balance.textContent = formatInt(end);
+          }
+        });
+      }
 
-            // Сброс позиции
-            gsap.set(reel, { x: 0 });
+      function addBalance(delta) {
+        setBalance(state.balance + delta);
+      }
 
-            const winIndex = 40; // На каком элементе остановимся
-            const stopPos = (winIndex * itemWidth) - (200 - itemWidth / 2); // Центрирование
-            const targetItem = reel.children[winIndex];
+      function setDisabled(el, disabled) {
+        el.disabled = disabled;
+        el.classList.toggle("opacity-60", disabled);
+        el.classList.toggle("cursor-not-allowed", disabled);
+      }
 
-            // Анимация прокрутки
-            gsap.to(reel, {
-                x: -stopPos,
-                duration: 5,
-                ease: "power4.inOut",
+      function rarityForValue(value) {
+        if (value >= 1000) return "Legendary";
+        if (value >= 200) return "Rare";
+        return "Common";
+      }
+
+      function rarityStyles(rarity) {
+        if (rarity === "Legendary") {
+          return {
+            ring: "border-gold-500/50",
+            bg: "bg-gradient-to-br from-gold-500/20 via-white/5 to-neon-600/10",
+            badge: "bg-gold-500/15 border-gold-500/35 text-gold-300",
+            glow: "shadow-[0_0_0_1px_rgba(251,191,36,.25),0_0_34px_rgba(251,191,36,.12)]",
+          };
+        }
+        if (rarity === "Rare") {
+          return {
+            ring: "border-neon-500/45",
+            bg: "bg-gradient-to-br from-neon-600/25 via-white/5 to-white/0",
+            badge: "bg-neon-600/15 border-neon-500/30 text-neon-500",
+            glow: "shadow-[0_0_0_1px_rgba(168,85,247,.20),0_0_36px_rgba(168,85,247,.12)]",
+          };
+        }
+        return {
+          ring: "border-white/10",
+          bg: "bg-white/5",
+          badge: "bg-white/5 border-white/10 text-white/70",
+          glow: "shadow-[0_0_0_1px_rgba(255,255,255,.06),0_0_30px_rgba(0,0,0,.2)]",
+        };
+      }
+
+      function buildItemPool() {
+        // Weighted values to create a "casino" feel.
+        const values = [10, 20, 30, 50, 75, 100, 150, 200, 300, 500, 1000, 2500];
+        const weights = [28, 24, 20, 16, 12, 10, 8, 6, 4, 3, 2, 1];
+
+        function pick() {
+          const total = weights.reduce((a, b) => a + b, 0);
+          let r = Math.random() * total;
+          for (let i = 0; i < values.length; i++) {
+            r -= weights[i];
+            if (r <= 0) return values[i];
+          }
+          return values[0];
+        }
+
+        const count = 60;
+        const arr = [];
+        for (let i = 0; i < count; i++) {
+          const value = pick();
+          const rarity = rarityForValue(value);
+          arr.push({ id: cryptoRandomId(), value, rarity });
+        }
+        return arr;
+      }
+
+      function cryptoRandomId() {
+        // Avoid adding dependencies; this is enough for DOM keys.
+        try {
+          const buf = new Uint32Array(2);
+          crypto.getRandomValues(buf);
+          return Array.from(buf).map(n => n.toString(16)).join("");
+        } catch {
+          return String(Math.random()).slice(2) + String(Date.now());
+        }
+      }
+
+      function createCardEl(item) {
+        const styles = rarityStyles(item.rarity);
+
+        const el = document.createElement("div");
+        el.className = [
+          "min-w-[132px] sm:min-w-[160px]",
+          "h-[104px] sm:h-[120px]",
+          "rounded-2xl",
+          "border",
+          styles.ring,
+          styles.bg,
+          styles.glow,
+          "relative",
+          "overflow-hidden",
+          "flex",
+          "items-center",
+          "justify-center",
+          "px-3",
+          "transition-transform",
+        ].join(" ");
+
+        el.dataset.value = String(item.value);
+        el.dataset.rarity = item.rarity;
+
+        const glow = document.createElement("div");
+        glow.className = "absolute -inset-16 bg-gradient-to-r from-neon-600/0 via-white/8 to-gold-500/0 rotate-12 blur-2xl opacity-70";
+
+        const badge = document.createElement("div");
+        badge.className = [
+          "absolute",
+          "top-2 left-2",
+          "text-[10px]",
+          "px-2 py-1",
+          "rounded-full",
+          "border",
+          styles.badge,
+          "backdrop-blur",
+        ].join(" ");
+        badge.textContent = item.rarity;
+
+        const star = document.createElement("div");
+        star.className = "absolute -bottom-4 -right-4 text-[72px] opacity-15 rotate-12 select-none";
+        star.textContent = "✦";
+
+        const value = document.createElement("div");
+        value.className = "relative text-center";
+        value.innerHTML = `
+          <div class="text-2xl sm:text-3xl font-semibold tabular-nums">${formatInt(item.value)}</div>
+          <div class="text-xs text-white/70 mt-1">stars</div>
+        `;
+
+        el.appendChild(glow);
+        el.appendChild(badge);
+        el.appendChild(star);
+        el.appendChild(value);
+        return el;
+      }
+
+      function renderReel(items) {
+        ui.reelTrack.innerHTML = "";
+        const frag = document.createDocumentFragment();
+        for (const item of items) frag.appendChild(createCardEl(item));
+        ui.reelTrack.appendChild(frag);
+      }
+
+      function buildDisplayItems(baseItems) {
+        // Duplicate the reel 3x so we can spin a long distance without showing empty space
+        // and then snap back seamlessly.
+        const copies = 3;
+        const out = [];
+        for (let c = 0; c < copies; c++) {
+          for (const it of baseItems) {
+            out.push({ ...it, id: `${it.id}_${c}` });
+          }
+        }
+        return out;
+      }
+
+      function measureCardMetrics() {
+        const first = ui.reelTrack.querySelector(":scope > div");
+        if (!first) return;
+        const rect = first.getBoundingClientRect();
+        state.cardWidth = rect.width;
+
+        const cs = getComputedStyle(ui.reelTrack);
+        // Tailwind gap is column-gap for flex
+        const gap = parseFloat(cs.columnGap || cs.gap || "0");
+        state.gap = Number.isFinite(gap) ? gap : 0;
+      }
+
+      function pointerTick() {
+        // Micro tick animation (vibrate + slight scale), plays when a card crosses center.
+        gsap.killTweensOf(ui.pointer);
+        gsap.fromTo(
+          ui.pointer,
+          { scaleY: 1, x: 0 },
+          {
+            scaleY: 0.92,
+            x: 1.5,
+            duration: 0.06,
+            yoyo: true,
+            repeat: 1,
+            ease: "power1.inOut",
+          }
+        );
+      }
+
+      function getCenteredIndexFromX(x) {
+        // x is translateX in px (negative moves left). We want which card center aligns with viewport center.
+        const viewportRect = ui.reelViewport.getBoundingClientRect();
+        const viewportCenter = viewportRect.width / 2;
+
+        const trackPaddingLeft = 0;
+        const step = state.cardWidth + state.gap;
+
+        // Position of each card's left edge relative to viewport: (padding + i*step) + x
+        // Card center: left + cardWidth/2
+        const iFloat = (viewportCenter - (x + trackPaddingLeft) - state.cardWidth / 2) / step;
+        return clamp(Math.round(iFloat), 0, state.displayItems.length - 1);
+      }
+
+      function spinToIndex(baseWinIndex) {
+        measureCardMetrics();
+
+        const viewportRect = ui.reelViewport.getBoundingClientRect();
+        const viewportCenter = viewportRect.width / 2;
+        const step = state.cardWidth + state.gap;
+
+        const n = state.items.length;
+        // Aim for the 3rd copy for a longer, satisfying spin.
+        const targetDisplayIndex = baseWinIndex + 2 * n;
+
+        // Center of winning card in track local coords: i*step + cardWidth/2
+        const targetCardCenter = targetDisplayIndex * step + state.cardWidth / 2;
+        // Need x so that target center ends at viewport center: targetCardCenter + x = viewportCenter
+        let targetX = viewportCenter - targetCardCenter;
+
+        state.lastCenteredIndex = null;
+
+        const duration = 4.6;
+
+        return new Promise((resolve) => {
+          gsap.to(ui.reelTrack, {
+            x: targetX,
+            duration,
+            ease: "power4.inOut",
+            onUpdate: () => {
+              const x = gsap.getProperty(ui.reelTrack, "x");
+              const centered = getCenteredIndexFromX(Number(x));
+              if (state.lastCenteredIndex === null) {
+                state.lastCenteredIndex = centered;
+              } else if (centered !== state.lastCenteredIndex) {
+                state.lastCenteredIndex = centered;
+                pointerTick();
+              }
+            },
+            onComplete: () => {
+              // Tiny settle for ultra-precise finish
+              gsap.to(ui.reelTrack, {
+                x: targetX,
+                duration: 0.18,
+                ease: "power2.out",
                 onComplete: () => {
-                    const winVal = parseInt(targetItem.innerText.replace('⭐', ''));
-                    balance += winVal;
-                    updateUI();
-                    spinBtn.disabled = false;
-                    
-                    // Эффект победы
-                    gsap.to(targetItem, { scale: 1.2, duration: 0.3, yoyo: true, repeat: 3 });
-                }
-            });
+                  // Seamless snap back from 3rd copy to the middle copy (same visuals).
+                  const snapX = targetX + n * step;
+                  gsap.set(ui.reelTrack, { x: snapX });
+                  resolve({ baseWinIndex, displayWinIndex: baseWinIndex + n, snapX });
+                },
+              });
+            }
+          });
+        });
+      }
+
+      function pickWinningIndex() {
+        // Pre-calculate winner before spin.
+        // Bias with rarity weights to keep it fair-ish but exciting.
+        const weights = state.items.map((it) => {
+          if (it.rarity === "Legendary") return 1;
+          if (it.rarity === "Rare") return 4;
+          return 10;
+        });
+        const total = weights.reduce((a, b) => a + b, 0);
+        let r = Math.random() * total;
+        for (let i = 0; i < weights.length; i++) {
+          r -= weights[i];
+          if (r <= 0) return i;
+        }
+        return Math.floor(Math.random() * state.items.length);
+      }
+
+      async function openCase() {
+        if (state.spinning) return;
+
+        const cost = 100;
+        if (state.balance < cost) {
+          // Micro feedback
+          gsap.fromTo(ui.openBtn, { x: 0 }, { x: 6, duration: 0.06, yoyo: true, repeat: 3, ease: "power1.inOut" });
+          return;
         }
 
-        function addMoney(amount) {
-            balance += amount;
-            updateUI();
-            gsap.from(balanceEl, { scale: 1.5, duration: 0.3 });
+        state.spinning = true;
+        setDisabled(ui.openBtn, true);
+        setDisabled(ui.resetBtn, true);
+
+        // Charge upfront
+        setBalance(state.balance - cost);
+
+        // Pre-calc winning item
+        const winIndex = pickWinningIndex();
+        const winItem = state.items[winIndex];
+
+        const result = await spinToIndex(winIndex);
+
+        // Award after the animation ends
+        addBalance(winItem.value);
+
+        ui.lastWin.textContent = `Last win: ${formatInt(winItem.value)} stars (${winItem.rarity})`;
+
+        // Winner pulse
+        const winnerEl = ui.reelTrack.children[result.displayWinIndex];
+        if (winnerEl) {
+          gsap.fromTo(winnerEl, { scale: 1 }, { scale: 1.06, duration: 0.25, yoyo: true, repeat: 1, ease: "power2.out" });
         }
 
-        function updateUI() {
-            balanceEl.innerText = balance;
+        state.spinning = false;
+        setDisabled(ui.openBtn, false);
+        setDisabled(ui.resetBtn, false);
+      }
+
+      function taskDefs() {
+        // Lightweight "keep playing" loop.
+        return [
+          { id: "daily", title: "Daily Check-in", desc: "Claim a quick reward.", reward: 250, cooldownMs: 1000 * 60 * 60 * 24 },
+          { id: "watch", title: "Watch a Star Ad", desc: "Pretend you watched it.", reward: 150, cooldownMs: 1000 * 60 * 10 },
+          { id: "share", title: "Share the Casino", desc: "Tell a friend about the stars.", reward: 200, cooldownMs: 1000 * 60 * 30 },
+          { id: "win", title: "Win Streak Boost", desc: "Claim once per hour.", reward: 300, cooldownMs: 1000 * 60 * 60 },
+          { id: "quest", title: "Cosmic Quest", desc: "Complete a tiny mission.", reward: 400, cooldownMs: 1000 * 60 * 45 },
+          { id: "bonus", title: "Legendary Bonus", desc: "Rare drop, rare claim.", reward: 600, cooldownMs: 1000 * 60 * 90 },
+        ];
+      }
+
+      function taskKey(id) {
+        return `task_claim_${id}_v1`;
+      }
+
+      function canClaimTask(task) {
+        const raw = localStorage.getItem(taskKey(task.id));
+        if (!raw) return true;
+        const last = Number(raw);
+        if (!Number.isFinite(last)) return true;
+        return Date.now() - last >= task.cooldownMs;
+      }
+
+      function timeLeftMs(task) {
+        const raw = localStorage.getItem(taskKey(task.id));
+        if (!raw) return 0;
+        const last = Number(raw);
+        if (!Number.isFinite(last)) return 0;
+        return Math.max(0, task.cooldownMs - (Date.now() - last));
+      }
+
+      function fmtTime(ms) {
+        const s = Math.ceil(ms / 1000);
+        const m = Math.floor(s / 60);
+        const r = s % 60;
+        if (m <= 0) return `${r}s`;
+        return `${m}m ${String(r).padStart(2, "0")}s`;
+      }
+
+      function renderTasks() {
+        ui.tasks.innerHTML = "";
+        const defs = taskDefs();
+        const frag = document.createDocumentFragment();
+
+        for (const t of defs) {
+          const claimable = canClaimTask(t);
+          const styles = claimable
+            ? "hover:bg-white/10"
+            : "opacity-70";
+
+          const el = document.createElement("button");
+          el.type = "button";
+          el.className = [
+            "glass rounded-2xl p-4 text-left transition",
+            "border border-white/10",
+            styles,
+          ].join(" ");
+
+          const left = timeLeftMs(t);
+          const rightLabel = claimable
+            ? `+${formatInt(t.reward)} ✦`
+            : `Ready in ${fmtTime(left)}`;
+
+          el.innerHTML = `
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <div class="font-semibold">${t.title}</div>
+                <div class="text-sm text-white/70 mt-1">${t.desc}</div>
+              </div>
+              <div class="shrink-0 text-sm font-semibold ${claimable ? "text-gold-300" : "text-white/60"}">${rightLabel}</div>
+            </div>
+          `;
+
+          el.addEventListener("click", () => {
+            if (!canClaimTask(t)) return;
+            localStorage.setItem(taskKey(t.id), String(Date.now()));
+            addBalance(t.reward);
+            gsap.fromTo(el, { scale: 1 }, { scale: 1.02, duration: 0.18, yoyo: true, repeat: 1, ease: "power2.out" });
+            renderTasks();
+          });
+
+          frag.appendChild(el);
         }
 
-        createReel();
-    </script>
+        ui.tasks.appendChild(frag);
+      }
+
+      function init() {
+        state.balance = readBalance();
+        ui.balance.textContent = formatInt(state.balance);
+
+        state.items = buildItemPool();
+        state.displayItems = buildDisplayItems(state.items);
+        renderReel(state.displayItems);
+
+        // Let layout settle then measure
+        requestAnimationFrame(() => {
+          measureCardMetrics();
+          // Start with a centered-ish position
+          const n = state.items.length;
+          const mid = n + Math.floor(n * 0.35);
+          const step = state.cardWidth + state.gap;
+          const viewportRect = ui.reelViewport.getBoundingClientRect();
+          const viewportCenter = viewportRect.width / 2;
+          const targetX = viewportCenter - (mid * step + state.cardWidth / 2);
+          gsap.set(ui.reelTrack, { x: targetX });
+        });
+
+        ui.openBtn.addEventListener("click", openCase);
+        ui.resetBtn.addEventListener("click", () => {
+          if (state.spinning) return;
+          setBalance(1500, { animate: true });
+          state.items = buildItemPool();
+          state.displayItems = buildDisplayItems(state.items);
+          renderReel(state.displayItems);
+          renderTasks();
+          ui.lastWin.textContent = "Last win: —";
+        });
+
+        window.addEventListener("resize", () => {
+          // Re-measure and keep current centered index approximately.
+          measureCardMetrics();
+        });
+
+        renderTasks();
+
+        // Subtle ambient motion on CTA
+        gsap.to(ui.openBtn, { boxShadow: "0 0 0 1px rgba(168,85,247,.22), 0 24px 80px rgba(0,0,0,.55)", duration: 2.2, yoyo: true, repeat: -1, ease: "sine.inOut" });
+      }
+
+      init();
+    })();
+  </script>
 </body>
 </html>
