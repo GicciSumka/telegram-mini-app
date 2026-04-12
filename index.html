@@ -752,12 +752,14 @@
                 state.lastCenteredIndex = centered;
               } else if (centered !== state.lastCenteredIndex) {
                 state.lastCenteredIndex = centered;
-                tickCounter++;
-                // Time-based throttling to prevent clustering in the fast middle
-                const now = performance.now();
-                if (tickCounter % tickInterval === 0 && now - lastTickTime > 80) {
-                  pointerTick();
-                  lastTickTime = now;
+                // Skip all pointer ticks on mobile for maximum performance
+                if (!state.isMobile) {
+                  tickCounter++;
+                  const now = performance.now();
+                  if (tickCounter % tickInterval === 0 && now - lastTickTime > 80) {
+                    pointerTick();
+                    lastTickTime = now;
+                  }
                 }
               }
             },
