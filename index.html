@@ -2,161 +2,512 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Вайб-чекер</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Три хороших вещи</title>
     <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --text-color: #e2e8f0;
+            --primary-color: #6366f1;
+            --primary-dark-color: #4f46e5;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --shadow-color: rgba(0, 0, 0, 0.2);
+        }
+
         body {
             margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
             min-height: 100vh;
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            background: var(--card-bg);
+            border-radius: 15px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 30px var(--shadow-color);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .tab-button {
+            background: transparent;
+            border: none;
+            color: var(--text-color);
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: color 0.3s ease, border-bottom 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab-button.active {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        h1, h2, h3 {
+            color: var(--text-color);
+            text-align: center;
+            margin-top: 0;
+        }
+
+        .date-display {
+            font-size: 1.2em;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        textarea {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--text-color);
+            font-size: 1em;
+            resize: vertical;
+            min-height: 60px;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease, background-color 0.3s ease;
+        }
+
+        textarea:focus {
+            border-color: var(--primary-color);
+            background-color: rgba(255, 255, 255, 0.1);
+            outline: none;
+        }
+
+        textarea:read-only {
+            background-color: rgba(255, 255, 255, 0.02);
+            border-color: rgba(255, 255, 255, 0.05);
+            cursor: not-allowed;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        button:hover {
+            background-color: var(--primary-dark-color);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        button:disabled {
+            background-color: #4a5568;
+            cursor: not-allowed;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            margin-top: 20px;
+        }
+
+        .calendar-day {
+            width: 30px;
+            height: 30px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            color: white;
-            text-align: center;
-            padding: 16px;
-            box-sizing: border-box;
-        }
-        .card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-radius: 24px;
-            padding: 32px 24px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.2);
-            width: 100%;
-            max-width: 320px;
-        }
-        h1 {
-            margin: 0 0 8px;
-            font-size: 28px;
-            font-weight: 600;
-        }
-        .greeting {
-            font-size: 20px;
-            margin-bottom: 24px;
-            opacity: 0.9;
-        }
-        .vibe-meter {
-            width: 100%;
-            height: 12px;
-            background: rgba(0,0,0,0.3);
-            border-radius: 20px;
-            margin: 24px 0;
-            overflow: hidden;
-        }
-        .vibe-fill {
-            width: 73%; /* рандомный вайб */
-            height: 100%;
-            background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb);
-            border-radius: 20px;
-            box-shadow: 0 0 10px #48dbfb;
-        }
-        button {
-            background: rgba(255,255,255,0.2);
-            border: 1px solid rgba(255,255,255,0.3);
-            color: white;
-            font-size: 18px;
-            padding: 14px 28px;
-            border-radius: 60px;
-            backdrop-filter: blur(5px);
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-weight: 500;
-            width: 100%;
-            margin-top: 8px;
-        }
-        button:active {
-            background: rgba(255,255,255,0.4);
-            transform: scale(0.97);
-        }
-        .hint {
-            font-size: 14px;
+            font-size: 0.8em;
+            color: var(--text-color);
             opacity: 0.6;
+            transition: background-color 0.3s ease, opacity 0.3s ease;
+        }
+
+        .calendar-day.has-entry {
+            background-color: #4CAF50; /* Green for entries */
+            opacity: 1;
+        }
+
+        .stats {
+            text-align: center;
             margin-top: 20px;
+            font-size: 1.1em;
+        }
+
+        .word-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .word-tag {
+            padding: 5px 10px;
+            background-color: var(--primary-color);
+            border-radius: 5px;
+            color: white;
+            font-weight: 500;
+            transition: transform 0.2s ease;
+        }
+
+        .word-tag:hover {
+            transform: translateY(-2px);
+        }
+
+        .message-info {
+            text-align: center;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+        }
+
+        @media (max-width: 400px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                border-radius: 0;
+                box-shadow: none;
+                border: none;
+            }
+
+            .tab-button {
+                font-size: 14px;
+                padding: 8px 10px;
+            }
+
+            .calendar-day {
+                width: 25px;
+                height: 25px;
+                font-size: 0.7em;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h1>✨ Вайб-чекер ✨</h1>
-        <div class="greeting" id="greeting">Загружаем...</div>
-        <div class="vibe-meter">
-            <div class="vibe-fill" id="vibeFill"></div>
+    <div class="container">
+        <div class="tabs">
+            <button class="tab-button active" data-tab="today">Сегодня</button>
+            <button class="tab-button" data-tab="calendar">Календарь</button>
+            <button class="tab-button" data-tab="analytics">Аналитика</button>
         </div>
-        <button id="actionBtn">Прожми вайб</button>
-        <div class="hint" id="hint">Твой вайб сегодня: стабилен</div>
+
+        <div id="today" class="tab-content active">
+            <h2>Сегодня</h2>
+            <div class="date-display" id="today-date"></div>
+            <textarea id="event1" placeholder="Что хорошего произошло? (1/3)"></textarea>
+            <textarea id="event2" placeholder="Что хорошего произошло? (2/3)"></textarea>
+            <textarea id="event3" placeholder="Что хорошего произошло? (3/3)"></textarea>
+            <button id="save-button">Сохранить день</button>
+        </div>
+
+        <div id="calendar" class="tab-content">
+            <h2>Календарь</h2>
+            <div class="stats">
+                <p>Дней подряд: <span id="streak-count">0</span></p>
+                <p>Всего записей: <span id="total-entries">0</span></p>
+            </div>
+            <div class="calendar-grid" id="calendar-grid"></div>
+        </div>
+
+        <div id="analytics" class="tab-content">
+            <h2>Аналитика</h2>
+            <div id="analytics-content">
+                <div class="word-cloud" id="word-cloud"></div>
+            </div>
+        </div>
     </div>
 
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
         // Инициализация Telegram Web App
-        const tg = window.Telegram.WebApp;
-        tg.expand(); // Растягиваем на весь экран
-        
-        // Устанавливаем цвет верхней панели в стиле приложения
-        tg.setHeaderColor('#1a1a2e');
-        tg.setBackgroundColor('#1a1a2e');
+        if (window.Telegram && window.Telegram.WebApp) {
+            Telegram.WebApp.ready();
+            Telegram.WebApp.expand();
+            // Устанавливаем цвет шапки в соответствии с темной темой
+            Telegram.WebApp.setHeaderColor('#0f172a'); // Используем цвет фона
+            Telegram.WebApp.setBackgroundColor('#0f172a');
+        }
 
-        // Получаем данные пользователя
-        const user = tg.initDataUnsafe?.user;
-        const greetingEl = document.getElementById('greeting');
-        const vibeFill = document.getElementById('vibeFill');
-        const hint = document.getElementById('hint');
-        const btn = document.getElementById('actionBtn');
+        // --- Логика для вкладки "Сегодня" ---
+        const todayDateElement = document.getElementById('today-date');
+        const event1Input = document.getElementById('event1');
+        const event2Input = document.getElementById('event2');
+        const event3Input = document.getElementById('event3');
+        const saveButton = document.getElementById('save-button');
 
-        // Функция приветствия
-        if (user) {
-            greetingEl.textContent = `Привет, ${user.first_name}!`;
-        } else {
-            greetingEl.textContent = `Привет, странник!`;
-            // В режиме отладки в браузере можно подставить тестовое имя
-            if (!tg.initData.length) {
-                greetingEl.textContent = `Привет, Тестер!`;
+        const STORAGE_KEY = 'gratitude_journal';
+
+        function getFormattedDate(date) {
+            const options = { weekday: 'long', day: 'numeric', month: 'long' };
+            return date.toLocaleDateString('ru-RU', options);
+        }
+
+        function getISODate(date) {
+            return date.toISOString().split('T')[0];
+        }
+
+        function loadJournalData() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            return data ? JSON.parse(data) : {};
+        }
+
+        function saveJournalData(data) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }
+
+        function renderTodayTab() {
+            const today = new Date();
+            const formattedDate = getFormattedDate(today);
+            const isoDate = getISODate(today);
+
+            todayDateElement.textContent = formattedDate;
+
+            const journal = loadJournalData();
+            const todayEntry = journal[isoDate];
+
+            if (todayEntry) {
+                event1Input.value = todayEntry[0] || '';
+                event2Input.value = todayEntry[1] || '';
+                event3Input.value = todayEntry[2] || '';
+                event1Input.readOnly = true;
+                event2Input.readOnly = true;
+                event3Input.readOnly = true;
+                saveButton.style.display = 'none';
+            } else {
+                event1Input.value = '';
+                event2Input.value = '';
+                event3Input.value = '';
+                event1Input.readOnly = false;
+                event2Input.readOnly = false;
+                event3Input.readOnly = false;
+                saveButton.style.display = 'block';
             }
         }
 
-        // Массив вайб-фраз
-        const vibes = [
-            "Чилл на 100%",
-            "Боевой настрой",
-            "Креативный поток",
-            "Легкая меланхолия",
-            "Вихрь идей",
-            "Дзен-режим",
-            "Энергия на нуле"
-        ];
+        saveButton.addEventListener('click', () => {
+            const today = new Date();
+            const isoDate = getISODate(today);
+            const entry = [
+                event1Input.value.trim(),
+                event2Input.value.trim(),
+                event3Input.value.trim()
+            ].filter(Boolean); // Удаляем пустые строки
 
-        // Случайный вайб при нажатии
-        btn.addEventListener('click', () => {
-            const randomPercent = Math.floor(Math.random() * 60) + 20; // от 20 до 80
-            const randomVibe = vibes[Math.floor(Math.random() * vibes.length)];
-            
-            vibeFill.style.width = randomPercent + '%';
-            hint.textContent = `Твой вайб сегодня: ${randomVibe}`;
-            
-            // Отправляем данные обратно в бота (если нужно)
-            tg.sendData(JSON.stringify({
-                action: 'vibe_checked',
-                percent: randomPercent,
-                vibe: randomVibe
-            }));
-            
-            // Тактильный отклик (если поддерживается)
-            if (tg.HapticFeedback) {
-                tg.HapticFeedback.impactOccurred('medium');
+            if (entry.length > 0) {
+                const journal = loadJournalData();
+                journal[isoDate] = entry;
+                saveJournalData(journal);
+                renderTodayTab(); // Обновляем вкладку после сохранения
+
+                // Тактильный отклик
+                if (window.Telegram && window.Telegram.WebApp) {
+                    Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+                }
+            } else {
+                alert('Пожалуйста, введите хотя бы одно хорошее событие.');
             }
         });
 
-        // Если открыто в браузере не из Telegram, показываем кнопку всё равно работает
-        if (!tg.initData.length) {
-            console.log('Открыто вне Telegram, но всё работает для теста');
+        // --- Логика переключения вкладок ---
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const tabId = button.dataset.tab;
+
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+
+                tabContents.forEach(content => {
+                    if (content.id === tabId) {
+                        content.classList.add('active');
+                    } else {
+                        content.classList.remove('active');
+                    }
+                });
+
+                // Дополнительная логика при переключении вкладок
+                if (tabId === 'calendar') {
+                    renderCalendarTab();
+                } else if (tabId === 'analytics') {
+                    renderAnalyticsTab();
+                }
+            });
+        });
+
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', () => {
+            renderTodayTab();
+            // Активируем первую вкладку по умолчанию
+            document.querySelector('.tab-button[data-tab="today"]').click();
+        });
+
+        // --- Логика для вкладки "Календарь" ---
+        const calendarGrid = document.getElementById('calendar-grid');
+        const streakCountElement = document.getElementById('streak-count');
+        const totalEntriesElement = document.getElementById('total-entries');
+
+        function renderCalendarTab() {
+            calendarGrid.innerHTML = ''; // Очищаем календарь перед отрисовкой
+            const journal = loadJournalData();
+            const today = new Date();
+            let streak = 0;
+            let totalEntries = 0;
+
+            // Генерируем дни за последние 12 недель
+            const days = [];
+            for (let i = 0; i < 12 * 7; i++) { // 12 недель * 7 дней
+                const date = new Date(today);
+                date.setDate(today.getDate() - i);
+                days.unshift(date); // Добавляем в начало, чтобы дни шли по порядку
+            }
+
+            days.forEach(date => {
+                const isoDate = getISODate(date);
+                const dayElement = document.createElement('div');
+                dayElement.classList.add('calendar-day');
+                dayElement.title = getFormattedDate(date);
+
+                if (journal[isoDate]) {
+                    dayElement.classList.add('has-entry');
+                    totalEntries++;
+                }
+                calendarGrid.appendChild(dayElement);
+            });
+
+            // Расчет стрика
+            let currentStreak = 0;
+            let previousDayHasEntry = true; // Предполагаем, что вчера была запись для начала стрика
+
+            for (let i = 0; i < days.length; i++) {
+                const date = new Date(today);
+                date.setDate(today.getDate() - i);
+                const isoDate = getISODate(date);
+
+                if (journal[isoDate]) {
+                    currentStreak++;
+                } else if (i > 0) { // Если нет записи и это не сегодняшний день (который может быть еще не заполнен)
+                    break; // Стрик прерван
+                }
+            }
+            streak = currentStreak;
+
+            streakCountElement.textContent = streak;
+            totalEntriesElement.textContent = totalEntries;
         }
-        
-        // Сообщаем Telegram, что приложение готово
-        tg.ready();
+
+        // --- Логика для вкладки "Аналитика" ---
+        const analyticsContent = document.getElementById('analytics-content');
+        const wordCloudElement = document.getElementById('word-cloud');
+
+        const stopWords = new Set([
+            'и', 'в', 'на', 'с', 'по', 'к', 'у', 'за', 'от', 'из',
+            'а', 'но', 'или', 'да', 'что', 'как', 'где', 'когда', 'почему', 'зачем',
+            'это', 'то', 'он', 'она', 'оно', 'они', 'мы', 'вы', 'я', 'ты',
+            'мой', 'твой', 'его', 'ее', 'их', 'наш', 'ваш',
+            'был', 'была', 'было', 'были', 'будет', 'будут', 'есть',
+            'не', 'ни', 'без', 'до', 'для', 'через', 'под', 'над', 'о', 'об',
+            'из-за', 'из-под', 'перед', 'при', 'про', 'хоть', 'чтобы', 'если',
+            'так', 'уже', 'еще', 'только', 'даже', 'все', 'много', 'мало', 'очень',
+            'около', 'после', 'послезавтра', 'вчера', 'сегодня', 'завтра',
+            'один', 'два', 'три', 'четыре', 'пять', 'шесть', 'семь', 'восемь', 'девять', 'десять'
+        ]);
+
+        function renderAnalyticsTab() {
+            const journal = loadJournalData();
+            const allEntries = Object.values(journal).flat(); // Получаем все записи в один массив
+
+            if (allEntries.length < 3) {
+                analyticsContent.innerHTML = '<div class="message-info">Нужно больше данных для аналитики. Заполни хотя бы 3 дня.</div>';
+                return;
+            }
+
+            const wordCounts = {};
+            allEntries.forEach(entry => {
+                // Приводим к нижнему регистру, убираем знаки препинания и разбиваем на слова
+                const words = entry.toLowerCase().match(/\b\p{L}+\b/gu) || [];
+                words.forEach(word => {
+                    if (!stopWords.has(word) && word.length > 2) { // Исключаем стоп-слова и короткие слова
+                        wordCounts[word] = (wordCounts[word] || 0) + 1;
+                    }
+                });
+            });
+
+            const sortedWords = Object.entries(wordCounts).sort(([, countA], [, countB]) => countB - countA);
+            const top15Words = sortedWords.slice(0, 15);
+
+            wordCloudElement.innerHTML = ''; // Очищаем облако тегов
+
+            if (top15Words.length === 0) {
+                wordCloudElement.innerHTML = '<div class="message-info">Недостаточно уникальных слов для облака тегов.</div>';
+                return;
+            }
+
+            // Определяем минимальную и максимальную частоту для масштабирования шрифта
+            const minCount = top15Words[top15Words.length - 1][1];
+            const maxCount = top15Words[0][1];
+
+            top15Words.forEach(([word, count]) => {
+                const wordTag = document.createElement('span');
+                wordTag.classList.add('word-tag');
+                wordTag.textContent = word;
+
+                // Масштабируем размер шрифта от 1em до 2.5em
+                const fontSize = 1 + (count - minCount) / (maxCount - minCount + 1) * 1.5; // +1 для избежания деления на ноль
+                wordTag.style.fontSize = `${fontSize}em`;
+
+                wordCloudElement.appendChild(wordTag);
+            });
+        }
     </script>
 </body>
 </html>
