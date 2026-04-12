@@ -3,511 +3,995 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Три хороших вещи</title>
+    <title>Telegram Mini App Casino</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --bg-color: #0f172a;
+            --bg-gradient-start: #1a1a2e;
+            --bg-gradient-end: #0f0f1a;
             --card-bg: rgba(255, 255, 255, 0.05);
-            --text-color: #e2e8f0;
-            --primary-color: #6366f1;
-            --primary-dark-color: #4f46e5;
-            --border-color: rgba(255, 255, 255, 0.1);
-            --shadow-color: rgba(0, 0, 0, 0.2);
+            --card-border: rgba(255, 215, 0, 0.2);
+            --gold-accent: #ffd700;
+            --neon-purple: #b829ff;
+            --text-color: #e0e0e0;
+            --text-color-light: #f0f0f0;
+            --text-color-dark: #a0a0a0;
+            --shadow-color: rgba(0, 0, 0, 0.5);
+            --neon-glow-gold: 0 0 5px var(--gold-accent), 0 0 10px var(--gold-accent), 0 0 15px var(--gold-accent);
+            --neon-glow-purple: 0 0 5px var(--neon-purple), 0 0 10px var(--neon-purple), 0 0 15px var(--neon-purple);
         }
 
         body {
             margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at top left, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
             color: var(--text-color);
             display: flex;
             justify-content: center;
             align-items: flex-start;
             min-height: 100vh;
-            padding: 20px;
-            box-sizing: border-box;
-            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
-        .container {
+        .app-container {
             width: 100%;
-            max-width: 400px;
-            background: var(--card-bg);
+            max-width: 450px;
+            background-color: var(--bg-gradient-end);
+            box-shadow: 0 0 30px var(--shadow-color);
             border-radius: 15px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 10px 30px var(--shadow-color);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            padding: 20px;
-            box-sizing: border-box;
+            overflow: hidden;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            min-height: 100vh;
+            position: relative;
         }
 
-        .tabs {
+        /* Header */
+        .header {
             display: flex;
-            justify-content: space-around;
-            margin-bottom: 20px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 10px;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
-        .tab-button {
-            background: transparent;
-            border: none;
-            color: var(--text-color);
-            padding: 10px 15px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 500;
-            transition: color 0.3s ease, border-bottom 0.3s ease;
-            border-bottom: 2px solid transparent;
+        .user-info {
+            display: flex;
+            align-items: center;
         }
 
-        .tab-button.active {
-            color: var(--primary-color);
-            border-bottom: 2px solid var(--primary-color);
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        h1, h2, h3 {
-            color: var(--text-color);
-            text-align: center;
-            margin-top: 0;
-        }
-
-        .date-display {
-            font-size: 1.2em;
-            font-weight: 600;
-            text-align: center;
-            margin-bottom: 20px;
-            color: var(--primary-color);
-        }
-
-        textarea {
-            width: calc(100% - 20px);
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            background-color: rgba(255, 255, 255, 0.05);
-            color: var(--text-color);
-            font-size: 1em;
-            resize: vertical;
-            min-height: 60px;
-            box-sizing: border-box;
-            transition: border-color 0.3s ease, background-color 0.3s ease;
-        }
-
-        textarea:focus {
-            border-color: var(--primary-color);
-            background-color: rgba(255, 255, 255, 0.1);
-            outline: none;
-        }
-
-        textarea:read-only {
-            background-color: rgba(255, 255, 255, 0.02);
-            border-color: rgba(255, 255, 255, 0.05);
-            cursor: not-allowed;
-        }
-
-        button {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 12px 20px;
-            font-size: 1em;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.1s ease;
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        button:hover {
-            background-color: var(--primary-dark-color);
-        }
-
-        button:active {
-            transform: scale(0.98);
-        }
-
-        button:disabled {
-            background-color: #4a5568;
-            cursor: not-allowed;
-        }
-
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 5px;
-            margin-top: 20px;
-        }
-
-        .calendar-day {
-            width: 30px;
-            height: 30px;
-            background-color: rgba(255, 255, 255, 0.05);
-            border-radius: 5px;
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--gold-accent);
+            margin-right: 10px;
+            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 0.8em;
-            color: var(--text-color);
-            opacity: 0.6;
-            transition: background-color 0.3s ease, opacity 0.3s ease;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--bg-gradient-end);
         }
 
-        .calendar-day.has-entry {
-            background-color: #4CAF50; /* Green for entries */
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--text-color-light);
+        }
+
+        .balance-info {
+            display: flex;
+            align-items: center;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 5px 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .balance-info:hover {
+            box-shadow: var(--neon-glow-gold);
+        }
+
+        .balance-info .star-icon {
+            color: var(--gold-accent);
+            margin-right: 8px;
+            font-size: 1.2em;
+            text-shadow: var(--neon-glow-gold);
+        }
+
+        .balance-amount {
+            font-weight: 700;
+            color: var(--gold-accent);
+            font-size: 1.1em;
+            text-shadow: var(--neon-glow-gold);
+        }
+
+        .sparkle {
+            position: absolute;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: sparkle-anim 0.5s ease-out forwards;
+            pointer-events: none;
+            transform: scale(0);
+        }
+
+        @keyframes sparkle-anim {
+            0% {
+                transform: scale(0);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        /* Navigation Tabs */
+        .tabs {
+            display: flex;
+            justify-content: space-around;
+            background: var(--card-bg);
+            border-top: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 10px 0;
+            position: sticky;
+            bottom: 0;
+            z-index: 1000;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 10px 0;
+            text-align: center;
+            color: var(--text-color-dark);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .tab-button.active {
+            color: var(--gold-accent);
+            text-shadow: var(--neon-glow-gold);
+        }
+
+        .tab-button::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 3px;
+            background-color: var(--gold-accent);
+            transition: width 0.3s ease;
+        }
+
+        .tab-button.active::after {
+            width: 80%;
+        }
+
+        /* Content Sections */
+        .content-section {
+            flex-grow: 1;
+            padding: 20px;
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .content-section.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--gold-accent);
+            text-align: center;
+            margin-bottom: 25px;
+            text-shadow: var(--neon-glow-gold);
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4), var(--neon-glow-gold);
+        }
+
+        /* Buttons */
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 700;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            text-align: center;
+            text-decoration: none;
+            color: var(--text-color-light);
+            box-shadow: var(--neon-glow-purple);
+            background: linear-gradient(45deg, var(--neon-purple) 0%, #8a2be2 100%);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            box-shadow: none;
+            background: #333;
+        }
+
+        .btn:not(:disabled):active {
+            transform: scale(0.98);
+        }
+
+        .btn.gold {
+            background: linear-gradient(45deg, var(--gold-accent) 0%, #e6b800 100%);
+            box-shadow: var(--neon-glow-gold);
+            color: var(--bg-gradient-end);
+        }
+
+        .btn .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.7);
+            animation: ripple-effect 0.6s linear forwards;
+            opacity: 0;
+            transform: scale(0);
+        }
+
+        @keyframes ripple-effect {
+            0% {
+                transform: scale(0);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+
+        /* Roulette Game */
+        .roulette-wheel-container {
+            position: relative;
+            width: 280px;
+            height: 280px;
+            margin: 30px auto;
+            border-radius: 50%;
+            background: radial-gradient(circle, #333 0%, #111 100%);
+            border: 5px solid var(--gold-accent);
+            box-shadow: var(--neon-glow-gold), 0 0 20px rgba(0, 0, 0, 0.8) inset;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .roulette-wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: relative;
+            transition: transform 4s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+
+        .wheel-sector {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: 100% 100%;
+            left: 50%;
+            top: 50%;
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); /* This is a placeholder, actual clip-path will be calculated by JS */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1.5em;
+            color: var(--text-color-light);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-sizing: border-box;
+        }
+
+        .wheel-sector span {
+            transform: rotate(45deg) translate(-50%, -50%); /* Adjust text orientation */
+            position: absolute;
+            top: 25%;
+            left: 25%;
+            text-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
+
+        .wheel-pointer {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-bottom: 25px solid var(--gold-accent);
+            z-index: 10;
+            filter: drop-shadow(var(--neon-glow-gold));
+        }
+
+        /* Tasks Section */
+        .task-item {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .task-item h3 {
+            margin: 0;
+            color: var(--gold-accent);
+            font-size: 1.2em;
+        }
+
+        .task-item p {
+            margin: 0;
+            color: var(--text-color);
+            font-size: 0.9em;
+        }
+
+        .task-item .reward {
+            font-weight: 600;
+            color: var(--gold-accent);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .task-item .reward .star-icon {
+            font-size: 1em;
+            text-shadow: var(--neon-glow-gold);
+        }
+
+        .task-item .btn {
+            margin-top: 10px;
+            padding: 10px;
+            font-size: 1em;
+        }
+
+        /* Daily Bonus */
+        .daily-bonus-card {
+            text-align: center;
+        }
+
+        .daily-bonus-card h3 {
+            color: var(--neon-purple);
+            text-shadow: var(--neon-glow-purple);
+            margin-bottom: 15px;
+        }
+
+        .daily-bonus-card .btn {
+            margin-top: 20px;
+            padding: 20px;
+            font-size: 1.3em;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 15px;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.6), var(--neon-glow-gold);
+            max-width: 300px;
+            width: 90%;
+            transform: translateY(-50px);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
             opacity: 1;
         }
 
-        .stats {
-            text-align: center;
-            margin-top: 20px;
+        .modal-content h2 {
+            color: var(--gold-accent);
+            margin-top: 0;
+            font-size: 1.8em;
+            text-shadow: var(--neon-glow-gold);
+        }
+
+        .modal-content p {
             font-size: 1.1em;
+            margin-bottom: 20px;
         }
 
-        .word-cloud {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
+        .modal-content .btn {
             margin-top: 20px;
         }
 
-        .word-tag {
-            padding: 5px 10px;
-            background-color: var(--primary-color);
-            border-radius: 5px;
-            color: white;
-            font-weight: 500;
-            transition: transform 0.2s ease;
+        /* Toast Notification */
+        .toast-container {
+            position: fixed;
+            bottom: 80px; /* Above tabs */
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 3000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
         }
 
-        .word-tag:hover {
-            transform: translateY(-2px);
-        }
-
-        .message-info {
+        .toast {
+            background: rgba(0, 0, 0, 0.8);
+            color: var(--text-color-light);
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transform: translateY(20px);
+            animation: toast-anim 3s forwards;
+            min-width: 200px;
             text-align: center;
-            padding: 20px;
-            background-color: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
         }
 
-        @media (max-width: 400px) {
-            body {
-                padding: 10px;
+        @keyframes toast-anim {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
             }
+            10% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            90% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+        }
 
-            .container {
+        /* Responsive adjustments */
+        @media (max-width: 450px) {
+            .app-container {
                 border-radius: 0;
-                box-shadow: none;
-                border: none;
+                min-height: 100vh;
             }
-
-            .tab-button {
-                font-size: 14px;
-                padding: 8px 10px;
-            }
-
-            .calendar-day {
-                width: 25px;
-                height: 25px;
-                font-size: 0.7em;
+            body {
+                align-items: stretch;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="tabs">
-            <button class="tab-button active" data-tab="today">Сегодня</button>
-            <button class="tab-button" data-tab="calendar">Календарь</button>
-            <button class="tab-button" data-tab="analytics">Аналитика</button>
-        </div>
-
-        <div id="today" class="tab-content active">
-            <h2>Сегодня</h2>
-            <div class="date-display" id="today-date"></div>
-            <textarea id="event1" placeholder="Что хорошего произошло? (1/3)"></textarea>
-            <textarea id="event2" placeholder="Что хорошего произошло? (2/3)"></textarea>
-            <textarea id="event3" placeholder="Что хорошего произошло? (3/3)"></textarea>
-            <button id="save-button">Сохранить день</button>
-        </div>
-
-        <div id="calendar" class="tab-content">
-            <h2>Календарь</h2>
-            <div class="stats">
-                <p>Дней подряд: <span id="streak-count">0</span></p>
-                <p>Всего записей: <span id="total-entries">0</span></p>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="user-info">
+                <div class="user-avatar" id="user-avatar"></div>
+                <span class="user-name" id="user-name">Гость</span>
             </div>
-            <div class="calendar-grid" id="calendar-grid"></div>
-        </div>
-
-        <div id="analytics" class="tab-content">
-            <h2>Аналитика</h2>
-            <div id="analytics-content">
-                <div class="word-cloud" id="word-cloud"></div>
+            <div class="balance-info" id="balance-info">
+                <span class="star-icon">⭐</span>
+                <span class="balance-amount" id="balance-amount">100</span>
             </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Casino Section -->
+            <section id="casino-section" class="content-section active">
+                <h2 class="section-title">🎰 Казино</h2>
+                <div class="card">
+                    <h3>Рулетка</h3>
+                    <p>Крутите колесо и умножайте свои звёзды!</p>
+                    <div class="roulette-wheel-container">
+                        <div class="roulette-wheel" id="roulette-wheel">
+                            <!-- Sectors will be generated by JS -->
+                        </div>
+                        <div class="wheel-pointer"></div>
+                    </div>
+                    <button class="btn gold" id="spin-roulette-btn">Крутить за 10 ⭐</button>
+                </div>
+            </section>
+
+            <!-- Tasks Section -->
+            <section id="tasks-section" class="content-section">
+                <h2 class="section-title">📋 Задания</h2>
+                <div id="tasks-list">
+                    <!-- Tasks will be generated by JS -->
+                </div>
+
+                <div class="card daily-bonus-card">
+                    <h3>Ежедневный бонус</h3>
+                    <p>Забирайте 20 ⭐ каждый день!</p>
+                    <button class="btn" id="claim-daily-bonus-btn">Забрать 20 ⭐</button>
+                </div>
+            </section>
+        </main>
+
+        <!-- Navigation Tabs -->
+        <nav class="tabs">
+            <div class="tab-button active" data-target="casino-section">🎰 Казино</div>
+            <div class="tab-button" data-target="tasks-section">📋 Задания</div>
+        </nav>
+    </div>
+
+    <!-- Modal for game results -->
+    <div class="modal-overlay" id="game-result-modal">
+        <div class="modal-content">
+            <h2 id="modal-title"></h2>
+            <p id="modal-message"></p>
+            <button class="btn gold" id="modal-close-btn">ОК</button>
         </div>
     </div>
 
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Toast Notification Container -->
+    <div class="toast-container" id="toast-container"></div>
+
     <script>
-        // Инициализация Telegram Web App
+        // Инициализация Telegram Web App SDK
         if (window.Telegram && window.Telegram.WebApp) {
             Telegram.WebApp.ready();
             Telegram.WebApp.expand();
-            // Устанавливаем цвет шапки в соответствии с темной темой
-            Telegram.WebApp.setHeaderColor('#0f172a'); // Используем цвет фона
-            Telegram.WebApp.setBackgroundColor('#0f172a');
-        }
+            Telegram.WebApp.setHeaderColor('#1a1a2e'); // Цвет шапки
+            Telegram.WebApp.setBackgroundColor('#0f0f1a'); // Цвет фона
 
-        // --- Логика для вкладки "Сегодня" ---
-        const todayDateElement = document.getElementById('today-date');
-        const event1Input = document.getElementById('event1');
-        const event2Input = document.getElementById('event2');
-        const event3Input = document.getElementById('event3');
-        const saveButton = document.getElementById('save-button');
-
-        const STORAGE_KEY = 'gratitude_journal';
-
-        function getFormattedDate(date) {
-            const options = { weekday: 'long', day: 'numeric', month: 'long' };
-            return date.toLocaleDateString('ru-RU', options);
-        }
-
-        function getISODate(date) {
-            return date.toISOString().split('T')[0];
-        }
-
-        function loadJournalData() {
-            const data = localStorage.getItem(STORAGE_KEY);
-            return data ? JSON.parse(data) : {};
-        }
-
-        function saveJournalData(data) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        }
-
-        function renderTodayTab() {
-            const today = new Date();
-            const formattedDate = getFormattedDate(today);
-            const isoDate = getISODate(today);
-
-            todayDateElement.textContent = formattedDate;
-
-            const journal = loadJournalData();
-            const todayEntry = journal[isoDate];
-
-            if (todayEntry) {
-                event1Input.value = todayEntry[0] || '';
-                event2Input.value = todayEntry[1] || '';
-                event3Input.value = todayEntry[2] || '';
-                event1Input.readOnly = true;
-                event2Input.readOnly = true;
-                event3Input.readOnly = true;
-                saveButton.style.display = 'none';
-            } else {
-                event1Input.value = '';
-                event2Input.value = '';
-                event3Input.value = '';
-                event1Input.readOnly = false;
-                event2Input.readOnly = false;
-                event3Input.readOnly = false;
-                saveButton.style.display = 'block';
-            }
-        }
-
-        saveButton.addEventListener('click', () => {
-            const today = new Date();
-            const isoDate = getISODate(today);
-            const entry = [
-                event1Input.value.trim(),
-                event2Input.value.trim(),
-                event3Input.value.trim()
-            ].filter(Boolean); // Удаляем пустые строки
-
-            if (entry.length > 0) {
-                const journal = loadJournalData();
-                journal[isoDate] = entry;
-                saveJournalData(journal);
-                renderTodayTab(); // Обновляем вкладку после сохранения
-
-                // Тактильный отклик
-                if (window.Telegram && window.Telegram.WebApp) {
-                    Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+            // Получение данных пользователя
+            const user = Telegram.WebApp.initDataUnsafe.user;
+            if (user) {
+                document.getElementById('user-name').textContent = user.first_name || 'Гость';
+                const avatarElement = document.getElementById('user-avatar');
+                if (user.photo_url) {
+                    avatarElement.innerHTML = `<img src="${user.photo_url}" alt="User Avatar">`;
+                } else {
+                    avatarElement.textContent = user.first_name ? user.first_name.charAt(0) : 'G';
                 }
-            } else {
-                alert('Пожалуйста, введите хотя бы одно хорошее событие.');
             }
+        }
+
+        // --- Локальное хранилище и состояние --- //
+        let balance = parseInt(localStorage.getItem('userBalance')) || 100;
+        let completedTasks = JSON.parse(localStorage.getItem('completedTasks')) || [];
+        let lastDailyBonusClaimed = localStorage.getItem('lastDailyBonusClaimed');
+
+        const balanceAmountElement = document.getElementById('balance-amount');
+        const tasksListElement = document.getElementById('tasks-list');
+        const spinRouletteBtn = document.getElementById('spin-roulette-btn');
+        const claimDailyBonusBtn = document.getElementById('claim-daily-bonus-btn');
+        const rouletteWheel = document.getElementById('roulette-wheel');
+        const gameResultModal = document.getElementById('game-result-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalMessage = document.getElementById('modal-message');
+        const modalCloseBtn = document.getElementById('modal-close-btn');
+        const toastContainer = document.getElementById('toast-container');
+
+        // --- Функции обновления UI --- //
+
+        /**
+         * Обновляет отображение баланса с плавной анимацией счетчика.
+         * @param {number} newBalance - Новый баланс.
+         */
+        function updateBalanceUI(newBalance) {
+            const currentBalance = parseInt(balanceAmountElement.textContent);
+            const duration = 500; // ms
+            const start = currentBalance;
+            const end = newBalance;
+            let startTime = null;
+
+            const animate = (currentTime) => {
+                if (!startTime) startTime = currentTime;
+                const progress = Math.min((currentTime - startTime) / duration, 1);
+                const animatedValue = Math.floor(start + (end - start) * progress);
+                balanceAmountElement.textContent = animatedValue;
+
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    balanceAmountElement.textContent = newBalance; // Убедимся, что конечное значение точное
+                }
+            };
+
+            requestAnimationFrame(animate);
+            balance = newBalance;
+            localStorage.setItem('userBalance', newBalance);
+
+            // TODO: Здесь будет fetch запрос к API для обновления баланса на сервере
+            // fetch('/api/user/balance', { method: 'POST', body: JSON.stringify({ balance: newBalance }) });
+        }
+
+        /**
+         * Показывает всплывающее уведомление (тост).
+         * @param {string} message - Сообщение для отображения.
+         * @param {string} type - Тип уведомления (например, 'success', 'error').
+         */
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.classList.add('toast', type);
+            toast.textContent = message;
+            toastContainer.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 3000); // Удалить тост через 3 секунды
+        }
+
+        /**
+         * Показывает модальное окно.
+         * @param {string} title - Заголовок модального окна.
+         * @param {string} message - Сообщение модального окна.
+         * @param {function} onClose - Функция, вызываемая при закрытии модального окна.
+         */
+        function showModal(title, message, onClose = () => {})
+        {
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            gameResultModal.classList.add('active');
+
+            const closeHandler = () => {
+                gameResultModal.classList.remove('active');
+                modalCloseBtn.removeEventListener('click', closeHandler);
+                gameResultModal.removeEventListener('click', closeHandler);
+                onClose();
+            };
+
+            modalCloseBtn.addEventListener('click', closeHandler);
+            gameResultModal.addEventListener('click', (e) => {
+                if (e.target === gameResultModal) {
+                    closeHandler();
+                }
+            });
+        }
+
+        // --- Обработчики событий --- //
+
+        // Анимация блеска баланса
+        document.getElementById('balance-info').addEventListener('click', function(e) {
+            const sparkle = document.createElement('div');
+            sparkle.classList.add('sparkle');
+            this.appendChild(sparkle);
+
+            const rect = this.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            sparkle.style.width = sparkle.style.height = `${size}px`;
+            sparkle.style.left = `${e.clientX - rect.left - size / 2}px`;
+            sparkle.style.top = `${e.clientY - rect.top - size / 2}px`;
+
+            sparkle.addEventListener('animationend', () => {
+                sparkle.remove();
+            });
         });
 
-        // --- Логика переключения вкладок ---
-        const tabButtons = document.querySelectorAll('.tab-button');
-        const tabContents = document.querySelectorAll('.tab-content');
+        // Переключение табов
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', function() {
+                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
 
-        tabButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const tabId = button.dataset.tab;
-
-                tabButtons.forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
-
-                tabContents.forEach(content => {
-                    if (content.id === tabId) {
-                        content.classList.add('active');
-                    } else {
-                        content.classList.remove('active');
-                    }
+                document.querySelectorAll('.content-section').forEach(section => {
+                    section.classList.remove('active');
                 });
 
-                // Дополнительная логика при переключении вкладок
-                if (tabId === 'calendar') {
-                    renderCalendarTab();
-                } else if (tabId === 'analytics') {
-                    renderAnalyticsTab();
+                const targetSectionId = this.dataset.target;
+                const targetSection = document.getElementById(targetSectionId);
+                if (targetSection) {
+                    targetSection.classList.add('active');
                 }
             });
         });
 
-        // Инициализация при загрузке страницы
+        // Ripple эффект для кнопок
         document.addEventListener('DOMContentLoaded', () => {
-            renderTodayTab();
-            // Активируем первую вкладку по умолчанию
-            document.querySelector('.tab-button[data-tab="today"]').click();
+            document.querySelectorAll('.btn').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    if (this.disabled) return;
+
+                    const ripple = document.createElement('span');
+                    ripple.classList.add('ripple');
+                    this.appendChild(ripple);
+
+                    const rect = this.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    ripple.style.width = ripple.style.height = `${size}px`;
+                    ripple.style.left = `${e.clientX - rect.left - size / 2}px`;
+                    ripple.style.top = `${e.clientY - rect.top - size / 2}px`;
+
+                    ripple.addEventListener('animationend', () => {
+                        ripple.remove();
+                    });
+                });
+            });
         });
 
-        // --- Логика для вкладки "Календарь" ---
-        const calendarGrid = document.getElementById('calendar-grid');
-        const streakCountElement = document.getElementById('streak-count');
-        const totalEntriesElement = document.getElementById('total-entries');
+        // --- Логика Рулетки --- //
+        const rouletteMultipliers = [0.5, 1, 2, 5, 0, 0.5, 1, 2]; // 8 секторов
+        const sectorColors = ['#4CAF50', '#2196F3', '#FFC107', '#F44336', '#9E9E9E', '#4CAF50', '#2196F3', '#FFC107'];
+        const betAmount = 10;
 
-        function renderCalendarTab() {
-            calendarGrid.innerHTML = ''; // Очищаем календарь перед отрисовкой
-            const journal = loadJournalData();
-            const today = new Date();
-            let streak = 0;
-            let totalEntries = 0;
+        /**
+         * Генерирует секторы рулетки динамически.
+         */
+        function generateRouletteSectors() {
+            const numSectors = rouletteMultipliers.length;
+            const anglePerSector = 360 / numSectors;
 
-            // Генерируем дни за последние 12 недель
-            const days = [];
-            for (let i = 0; i < 12 * 7; i++) { // 12 недель * 7 дней
-                const date = new Date(today);
-                date.setDate(today.getDate() - i);
-                days.unshift(date); // Добавляем в начало, чтобы дни шли по порядку
-            }
+            rouletteWheel.innerHTML = ''; // Очищаем перед генерацией
 
-            days.forEach(date => {
-                const isoDate = getISODate(date);
-                const dayElement = document.createElement('div');
-                dayElement.classList.add('calendar-day');
-                dayElement.title = getFormattedDate(date);
+            rouletteMultipliers.forEach((multiplier, index) => {
+                const sector = document.createElement('div');
+                sector.classList.add('wheel-sector');
+                sector.style.backgroundColor = sectorColors[index];
+                sector.style.transform = `rotate(${index * anglePerSector}deg) skewY(-45deg)`; // Adjust skew for visual effect
+                sector.style.clipPath = `polygon(0 0, 100% 0, 100% 100%, 0 100%)`; // Placeholder, actual clip-path is complex for pie slices
 
-                if (journal[isoDate]) {
-                    dayElement.classList.add('has-entry');
-                    totalEntries++;
-                }
-                calendarGrid.appendChild(dayElement);
+                const textSpan = document.createElement('span');
+                textSpan.textContent = `${multiplier}x`;
+                sector.appendChild(textSpan);
+
+                // Более точное позиционирование текста
+                textSpan.style.transform = `rotate(${anglePerSector / 2}deg) translate(-50%, -50%)`;
+                textSpan.style.left = `50%`;
+                textSpan.style.top = `25%`;
+
+                rouletteWheel.appendChild(sector);
             });
 
-            // Расчет стрика
-            let currentStreak = 0;
-            let previousDayHasEntry = true; // Предполагаем, что вчера была запись для начала стрика
+            // Correctly apply rotation for each sector to form a circle
+            const sectors = rouletteWheel.querySelectorAll('.wheel-sector');
+            sectors.forEach((sector, index) => {
+                sector.style.transform = `rotate(${index * anglePerSector}deg) skewY(-45deg)`;
+                sector.style.transformOrigin = '0% 100%'; // Pivot point for rotation
+                sector.style.left = '50%';
+                sector.style.top = '50%';
+                sector.style.clipPath = `polygon(0% 0%, 100% 0%, 75% 100%, 25% 100%)`; // This is still a simplification
+                // For perfect pie slices, SVG or more complex CSS is needed.
+                // For this example, we'll rely on the overall wheel rotation and text positioning.
+                sector.style.backgroundColor = sectorColors[index];
+                sector.style.transform = `rotate(${index * anglePerSector}deg) skewY(-45deg)`;
+                sector.style.transformOrigin = '0% 100%';
+                sector.style.left = '50%';
+                sector.style.top = '50%';
+                sector.style.clipPath = `polygon(0% 0%, 100% 0%, 75% 100%, 25% 100%)`;
 
-            for (let i = 0; i < days.length; i++) {
-                const date = new Date(today);
-                date.setDate(today.getDate() - i);
-                const isoDate = getISODate(date);
-
-                if (journal[isoDate]) {
-                    currentStreak++;
-                } else if (i > 0) { // Если нет записи и это не сегодняшний день (который может быть еще не заполнен)
-                    break; // Стрик прерван
-                }
-            }
-            streak = currentStreak;
-
-            streakCountElement.textContent = streak;
-            totalEntriesElement.textContent = totalEntries;
+                // Rotate the text back to be readable
+                const textSpan = sector.querySelector('span');
+                textSpan.style.transform = `rotate(${90 + anglePerSector / 2}deg) translate(-50%, -50%)`;
+                textSpan.style.left = `75%`;
+                textSpan.style.top = `50%`;
+            });
         }
 
-        // --- Логика для вкладки "Аналитика" ---
-        const analyticsContent = document.getElementById('analytics-content');
-        const wordCloudElement = document.getElementById('word-cloud');
+        // Инициализация секторов рулетки при загрузке
+        generateRouletteSectors();
 
-        const stopWords = new Set([
-            'и', 'в', 'на', 'с', 'по', 'к', 'у', 'за', 'от', 'из',
-            'а', 'но', 'или', 'да', 'что', 'как', 'где', 'когда', 'почему', 'зачем',
-            'это', 'то', 'он', 'она', 'оно', 'они', 'мы', 'вы', 'я', 'ты',
-            'мой', 'твой', 'его', 'ее', 'их', 'наш', 'ваш',
-            'был', 'была', 'было', 'были', 'будет', 'будут', 'есть',
-            'не', 'ни', 'без', 'до', 'для', 'через', 'под', 'над', 'о', 'об',
-            'из-за', 'из-под', 'перед', 'при', 'про', 'хоть', 'чтобы', 'если',
-            'так', 'уже', 'еще', 'только', 'даже', 'все', 'много', 'мало', 'очень',
-            'около', 'после', 'послезавтра', 'вчера', 'сегодня', 'завтра',
-            'один', 'два', 'три', 'четыре', 'пять', 'шесть', 'семь', 'восемь', 'девять', 'десять'
-        ]);
-
-        function renderAnalyticsTab() {
-            const journal = loadJournalData();
-            const allEntries = Object.values(journal).flat(); // Получаем все записи в один массив
-
-            if (allEntries.length < 3) {
-                analyticsContent.innerHTML = '<div class="message-info">Нужно больше данных для аналитики. Заполни хотя бы 3 дня.</div>';
+        spinRouletteBtn.addEventListener('click', () => {
+            if (balance < betAmount) {
+                showModal('Недостаточно звёзд', `Для игры в рулетку требуется ${betAmount} ⭐. У вас ${balance} ⭐.`);
                 return;
             }
 
-            const wordCounts = {};
-            allEntries.forEach(entry => {
-                // Приводим к нижнему регистру, убираем знаки препинания и разбиваем на слова
-                const words = entry.toLowerCase().match(/\b\p{L}+\b/gu) || [];
-                words.forEach(word => {
-                    if (!stopWords.has(word) && word.length > 2) { // Исключаем стоп-слова и короткие слова
-                        wordCounts[word] = (wordCounts[word] || 0) + 1;
+            spinRouletteBtn.disabled = true;
+            updateBalanceUI(balance - betAmount);
+
+            // TODO: Здесь будет fetch запрос к API для игры в рулетку
+            // fetch('/api/spin', { method: 'POST', body: JSON.stringify({ bet: betAmount }) })
+            // .then(response => response.json())
+            // .then(data => { /* обработка результата */ });
+
+            const numSectors = rouletteMultipliers.length;
+            const anglePerSector = 360 / numSectors;
+
+            // Выбираем случайный сектор для выигрыша
+            const winningSectorIndex = Math.floor(Math.random() * numSectors);
+            const winningMultiplier = rouletteMultipliers[winningSectorIndex];
+
+            // Рассчитываем угол поворота для остановки на выигрышном секторе
+            // Добавляем несколько полных оборотов для эффекта вращения
+            // Вычитаем половину угла сектора, чтобы стрелка указывала на центр сектора
+            const rotationDegrees = 360 * 5 + (360 - (winningSectorIndex * anglePerSector + anglePerSector / 2));
+
+            rouletteWheel.style.transition = 'transform 4s cubic-bezier(0.25, 0.1, 0.25, 1)';
+            rouletteWheel.style.transform = `rotate(${rotationDegrees}deg)`;
+
+            rouletteWheel.addEventListener('transitionend', function handler() {
+                rouletteWheel.removeEventListener('transitionend', handler);
+                spinRouletteBtn.disabled = false;
+
+                const winAmount = betAmount * winningMultiplier;
+                const newBalance = balance + winAmount;
+                updateBalanceUI(newBalance);
+
+                let title, message;
+                if (winningMultiplier === 0) {
+                    title = 'Проигрыш!';
+                    message = `Вы проиграли. Ваш баланс: ${newBalance} ⭐`;
+                } else if (winningMultiplier === 1) {
+                    title = 'Ничья!';
+                    message = `Ваша ставка возвращена. Ваш баланс: ${newBalance} ⭐`;
+                } else {
+                    title = 'Выигрыш!';
+                    message = `Вы выиграли ${winAmount} ⭐! Ваш баланс: ${newBalance} ⭐`;
+                }
+                showModal(title, message);
+
+                // Сброс трансформации для следующего вращения (без анимации)
+                rouletteWheel.style.transition = 'none';
+                rouletteWheel.style.transform = `rotate(${rotationDegrees % 360}deg)`;
+            });
+        });
+
+        // --- Логика Заданий --- //
+        const tasks = [
+            { id: 'subscribe_channel', name: 'Подписаться на канал', description: 'Подпишитесь на наш Telegram канал', reward: 50 },
+            { id: 'invite_friend', name: 'Пригласить друга', description: 'Пригласите друга в игру', reward: 100 },
+            { id: 'login_3_days', name: 'Заходить 3 дня подряд', description: 'Заходите в игру 3 дня подряд', reward: 30 },
+            { id: 'share_game', name: 'Поделиться игрой', description: 'Поделитесь ссылкой на игру с друзьями', reward: 25 },
+        ];
+
+        /**
+         * Рендерит список заданий.
+         */
+        function renderTasks() {
+            tasksListElement.innerHTML = '';
+            tasks.forEach(task => {
+                const isCompleted = completedTasks.includes(task.id);
+                const taskCard = document.createElement('div');
+                taskCard.classList.add('card', 'task-item');
+                taskCard.innerHTML = `
+                    <h3>${task.name}</h3>
+                    <p>${task.description}</p>
+                    <div class="reward"><span class="star-icon">⭐</span> ${task.reward}</div>
+                    <button class="btn ${isCompleted ? 'disabled' : ''}" data-task-id="${task.id}" ${isCompleted ? 'disabled' : ''}>
+                        ${isCompleted ? 'Выполнено' : 'Выполнить'}
+                    </button>
+                `;
+                tasksListElement.appendChild(taskCard);
+            });
+
+            document.querySelectorAll('#tasks-list .btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const taskId = this.dataset.taskId;
+                    if (!completedTasks.includes(taskId)) {
+                        const task = tasks.find(t => t.id === taskId);
+                        if (task) {
+                            completedTasks.push(taskId);
+                            localStorage.setItem('completedTasks', JSON.stringify(completedTasks));
+                            updateBalanceUI(balance + task.reward);
+                            showToast(`Задание выполнено! +${task.reward} ⭐`, 'success');
+                            renderTasks(); // Перерисовать задания, чтобы обновить статус кнопки
+
+                            // TODO: Здесь будет fetch запрос к API для отметки задания выполненным
+                            // fetch('/api/task/complete', { method: 'POST', body: JSON.stringify({ taskId: taskId }) });
+                        }
                     }
                 });
             });
-
-            const sortedWords = Object.entries(wordCounts).sort(([, countA], [, countB]) => countB - countA);
-            const top15Words = sortedWords.slice(0, 15);
-
-            wordCloudElement.innerHTML = ''; // Очищаем облако тегов
-
-            if (top15Words.length === 0) {
-                wordCloudElement.innerHTML = '<div class="message-info">Недостаточно уникальных слов для облака тегов.</div>';
-                return;
-            }
-
-            // Определяем минимальную и максимальную частоту для масштабирования шрифта
-            const minCount = top15Words[top15Words.length - 1][1];
-            const maxCount = top15Words[0][1];
-
-            top15Words.forEach(([word, count]) => {
-                const wordTag = document.createElement('span');
-                wordTag.classList.add('word-tag');
-                wordTag.textContent = word;
-
-                // Масштабируем размер шрифта от 1em до 2.5em
-                const fontSize = 1 + (count - minCount) / (maxCount - minCount + 1) * 1.5; // +1 для избежания деления на ноль
-                wordTag.style.fontSize = `${fontSize}em`;
-
-                wordCloudElement.appendChild(wordTag);
-            });
         }
+
+        // --- Логика Ежедневного бонуса --- //
+
+        /**
+         * Проверяет, можно ли получить ежедневный бонус.
+         * @returns {boolean} - true, если бонус можно получить, иначе false.
+         */
+        function canClaimDailyBonus() {
+            if (!lastDailyBonusClaimed) return true;
+            const lastClaimDate = new Date(lastDailyBonusClaimed);
+            const now = new Date();
+            const diffTime = Math.abs(now.getTime() - lastClaimDate.getTime());
+            const diffHours = Math.ceil(diffTime / (1000 * 60 * 60));
+            return diffHours >= 24;
+        }
+
+        /**
+         * Обновляет состояние кнопки ежедневного бонуса.
+         */
+        function updateDailyBonusButton() {
+            if (canClaimDailyBonus()) {
+                claimDailyBonusBtn.disabled = false;
+                claimDailyBonusBtn.textContent = 'Забрать 20 ⭐';
+                claimDailyBonusBtn.classList.remove('disabled');
+            } else {
+                claimDailyBonusBtn.disabled = true;
+                claimDailyBonusBtn.textContent = 'Бонус уже получен';
+                claimDailyBonusBtn.classList.add('disabled');
+            }
+        }
+
+        claimDailyBonusBtn.addEventListener('click', () => {
+            if (canClaimDailyBonus()) {
+                const bonusAmount = 20;
+                updateBalanceUI(balance + bonusAmount);
+                lastDailyBonusClaimed = new Date().toISOString();
+                localStorage.setItem('lastDailyBonusClaimed', lastDailyBonusClaimed);
+                showToast(`Ежедневный бонус получен! +${bonusAmount} ⭐`, 'success');
+                updateDailyBonusButton();
+
+                // TODO: Здесь будет fetch запрос к API для получения ежедневного бонуса
+                // fetch('/api/daily-bonus', { method: 'POST' });
+            } else {
+                showToast('Ежедневный бонус уже получен. Попробуйте завтра.', 'info');
+            }
+        });
+
+        // --- Инициализация при загрузке страницы --- //
+        document.addEventListener('DOMContentLoaded', () => {
+            updateBalanceUI(balance); // Инициализация баланса
+            renderTasks(); // Рендер заданий
+            updateDailyBonusButton(); // Обновление кнопки ежедневного бонуса
+        });
     </script>
 </body>
 </html>
+
