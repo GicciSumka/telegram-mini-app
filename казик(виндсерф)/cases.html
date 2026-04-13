@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Кейсы - Nebula Cases</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <a href="index.html" class="logo">
+                <span class="logo-icon">◆</span>
+                <span class="logo-text">Nebula<span class="logo-accent">Cases</span></span>
+            </a>
+            <nav class="nav">
+                <a href="index.html" class="nav-link">Главная</a>
+                <a href="cases.html" class="nav-link active">Кейсы</a>
+                <a href="upgrade.html" class="nav-link">Апгрейд</a>
+                <a href="profile.html" class="nav-link">Профиль</a>
+            </nav>
+            <div class="header-balance">
+                <span class="balance-icon">⭐</span>
+                <span class="balance-amount" id="headerBalance">1000</span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="cases-page">
+            <div class="container">
+                <div class="cases-header">
+                    <div class="cases-title-section">
+                        <h1 class="page-title">Все кейсы</h1>
+                        <p class="page-subtitle">Выберите кейс и испытайте удачу</p>
+                    </div>
+                    <div class="fast-mode-toggle-container">
+                        <span class="fast-mode-label" id="fastModeLabel">🐌 Обычно</span>
+                        <button class="fast-mode-toggle" id="fastModeToggle" onclick="toggleFastMode()">
+                            <span class="toggle-track">
+                                <span class="toggle-thumb"></span>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="cases-list">
+                    <div class="case-detail-card" data-case="starter" data-price="100">
+                        <div class="case-detail-image">
+                            <div class="case-box starter large">
+                                <div class="case-shine"></div>
+                            </div>
+                        </div>
+                        <div class="case-detail-info">
+                            <h2 class="case-detail-name">Стартовый кейс</h2>
+                            <p class="case-detail-desc">Идеальный выбор для новичков. Содержит базовые награды.</p>
+                            <div class="case-detail-price">
+                                <span class="price-icon">⭐</span>
+                                <span class="price-amount">100</span>
+                            </div>
+                            <button class="btn btn-primary btn-open" onclick="openCase('starter', 100)">Открыть кейс</button>
+                        </div>
+                        <div class="case-items-preview" id="items-starter"></div>
+                    </div>
+
+                    <div class="case-detail-card" data-case="pro" data-price="250">
+                        <div class="case-detail-image">
+                            <div class="case-box pro large">
+                                <div class="case-shine"></div>
+                            </div>
+                        </div>
+                        <div class="case-detail-info">
+                            <h2 class="case-detail-name">Про кейс</h2>
+                            <p class="case-detail-desc">Для опытных пользователей. Шанс на редкие предметы.</p>
+                            <div class="case-detail-price">
+                                <span class="price-icon">⭐</span>
+                                <span class="price-amount">250</span>
+                            </div>
+                            <button class="btn btn-primary btn-open" onclick="openCase('pro', 250)">Открыть кейс</button>
+                        </div>
+                        <div class="case-items-preview" id="items-pro"></div>
+                    </div>
+
+                    <div class="case-detail-card" data-case="elite" data-price="500">
+                        <div class="case-detail-image">
+                            <div class="case-box elite large">
+                                <div class="case-shine"></div>
+                            </div>
+                        </div>
+                        <div class="case-detail-info">
+                            <h2 class="case-detail-name">Элитный кейс</h2>
+                            <p class="case-detail-desc">Премиум награды для избранных.</p>
+                            <div class="case-detail-price">
+                                <span class="price-icon">⭐</span>
+                                <span class="price-amount">500</span>
+                            </div>
+                            <button class="btn btn-primary btn-open" onclick="openCase('elite', 500)">Открыть кейс</button>
+                        </div>
+                        <div class="case-items-preview" id="items-elite"></div>
+                    </div>
+
+                    <div class="case-detail-card" data-case="legendary" data-price="1000">
+                        <div class="case-detail-image">
+                            <div class="case-box legendary large">
+                                <div class="case-shine"></div>
+                            </div>
+                        </div>
+                        <div class="case-detail-info">
+                            <h2 class="case-detail-name">Легендарный кейс</h2>
+                            <p class="case-detail-desc">Шанс получить легендарные награды!</p>
+                            <div class="case-detail-price">
+                                <span class="price-icon">⭐</span>
+                                <span class="price-amount">1000</span>
+                            </div>
+                            <button class="btn btn-primary btn-open" onclick="openCase('legendary', 1000)">Открыть кейс</button>
+                        </div>
+                        <div class="case-items-preview" id="items-legendary"></div>
+                    </div>
+
+                    <div class="case-detail-card" data-case="cosmic" data-price="2000">
+                        <div class="case-detail-image">
+                            <div class="case-box cosmic large">
+                                <div class="case-shine"></div>
+                            </div>
+                        </div>
+                        <div class="case-detail-info">
+                            <h2 class="case-detail-name">Космический кейс</h2>
+                            <p class="case-detail-desc">Внеземные награды из глубины вселенной.</p>
+                            <div class="case-detail-price">
+                                <span class="price-icon">⭐</span>
+                                <span class="price-amount">2000</span>
+                            </div>
+                            <button class="btn btn-primary btn-open" onclick="openCase('cosmic', 2000)">Открыть кейс</button>
+                        </div>
+                        <div class="case-items-preview" id="items-cosmic"></div>
+                    </div>
+
+                    <div class="case-detail-card" data-case="mystery" data-price="5000">
+                        <div class="case-detail-image">
+                            <div class="case-box mystery large">
+                                <div class="case-shine"></div>
+                            </div>
+                        </div>
+                        <div class="case-detail-info">
+                            <h2 class="case-detail-name">Мистический кейс</h2>
+                            <p class="case-detail-desc">Самый загадочный кейс. Что внутри — никто не знает.</p>
+                            <div class="case-detail-price">
+                                <span class="price-icon">⭐</span>
+                                <span class="price-amount">5000</span>
+                            </div>
+                            <button class="btn btn-primary btn-open" onclick="openCase('mystery', 5000)">Открыть кейс</button>
+                        </div>
+                        <div class="case-items-preview" id="items-mystery"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Case Opening Modal -->
+    <div class="modal-overlay" id="caseModal">
+        <div class="modal case-modal">
+            <button class="modal-close" onclick="closeCaseModal()">&times;</button>
+            <h2 class="modal-title">Открытие кейса</h2>
+            <div class="roulette-container">
+                <div class="roulette-window">
+                    <div class="roulette-marker"></div>
+                    <div class="roulette-track" id="rouletteTrack"></div>
+                </div>
+            </div>
+            <div class="modal-result" id="modalResult"></div>
+        </div>
+    </div>
+
+    <!-- Win Modal -->
+    <div class="modal-overlay" id="winModal">
+        <div class="modal win-modal">
+            <button class="modal-close" onclick="closeWinModal()">&times;</button>
+            <div class="win-content">
+                <div class="win-glow"></div>
+                <h2 class="win-title">🎉 Поздравляем!</h2>
+                <p class="win-subtitle">Вы выиграли:</p>
+                <div class="win-item" id="winItem"></div>
+                <button class="btn btn-primary" onclick="closeWinModal()">Забрать</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Nebula Cases. Все права защищены.</p>
+        </div>
+    </footer>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>

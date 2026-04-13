@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nebula Cases - Открывай кейсы и получай награды</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <a href="index.html" class="logo">
+                <span class="logo-icon">◆</span>
+                <span class="logo-text">Nebula<span class="logo-accent">Cases</span></span>
+            </a>
+            <nav class="nav">
+                <a href="index.html" class="nav-link active">Главная</a>
+                <a href="cases.html" class="nav-link">Кейсы</a>
+                <a href="upgrade.html" class="nav-link">Апгрейд</a>
+                <a href="profile.html" class="nav-link">Профиль</a>
+            </nav>
+            <div class="header-balance">
+                <span class="balance-icon">⭐</span>
+                <span class="balance-amount" id="headerBalance">1000</span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <h1 class="hero-title">Открывай кейсы — получай <span class="gradient-text">награды</span></h1>
+                <p class="hero-subtitle">Испытай удачу и выиграй редкие предметы из наших эксклюзивных кейсов</p>
+                <a href="cases.html" class="btn btn-primary btn-glow">Начать открывать</a>
+            </div>
+            <div class="hero-glow"></div>
+        </section>
+
+        <section class="cases-section">
+            <div class="container">
+                <h2 class="section-title">Популярные кейсы</h2>
+                <div class="cases-grid">
+                    <div class="case-card" data-case="starter">
+                        <div class="case-image">
+                            <div class="case-box starter">
+                                <div class="case-shine"></div>
+                            </div>
+                        </div>
+                        <h3 class="case-name">Стартовый</h3>
+                        <div class="case-price">
+                            <span class="price-icon">⭐</span>
+                            <span class="price-amount">100</span>
+                        </div>
+                        <a href="cases.html?case=starter" class="btn btn-case">Открыть</a>
+                    </div>
+
+                    <div class="case-card" data-case="pro">
+                        <div class="case-image">
+                            <div class="case-box pro">
+                                <div class="case-shine"></div>
+                            </div>
+                        </div>
+                        <h3 class="case-name">Про</h3>
+                        <div class="case-price">
+                            <span class="price-icon">⭐</span>
+                            <span class="price-amount">250</span>
+                        </div>
+                        <a href="cases.html?case=pro" class="btn btn-case">Открыть</a>
+                    </div>
+
+                    <div class="case-card" data-case="elite">
+                        <div class="case-image">
+                            <div class="case-box elite">
+                                <div class="case-shine"></div>
+                            </div>
+                        </div>
+                        <h3 class="case-name">Элитный</h3>
+                        <div class="case-price">
+                            <span class="price-icon">⭐</span>
+                            <span class="price-amount">500</span>
+                        </div>
+                        <a href="cases.html?case=elite" class="btn btn-case">Открыть</a>
+                    </div>
+
+                    <div class="case-card" data-case="legendary">
+                        <div class="case-image">
+                            <div class="case-box legendary">
+                                <div class="case-shine"></div>
+                            </div>
+                        </div>
+                        <h3 class="case-name">Легендарный</h3>
+                        <div class="case-price">
+                            <span class="price-icon">⭐</span>
+                            <span class="price-amount">1000</span>
+                        </div>
+                        <a href="cases.html?case=legendary" class="btn btn-case">Открыть</a>
+                    </div>
+
+                    <div class="case-card" data-case="cosmic">
+                        <div class="case-image">
+                            <div class="case-box cosmic">
+                                <div class="case-shine"></div>
+                            </div>
+                        </div>
+                        <h3 class="case-name">Космический</h3>
+                        <div class="case-price">
+                            <span class="price-icon">⭐</span>
+                            <span class="price-amount">2000</span>
+                        </div>
+                        <a href="cases.html?case=cosmic" class="btn btn-case">Открыть</a>
+                    </div>
+
+                    <div class="case-card" data-case="mystery">
+                        <div class="case-image">
+                            <div class="case-box mystery">
+                                <div class="case-shine"></div>
+                            </div>
+                        </div>
+                        <h3 class="case-name">Мистический</h3>
+                        <div class="case-price">
+                            <span class="price-icon">⭐</span>
+                            <span class="price-amount">5000</span>
+                        </div>
+                        <a href="cases.html?case=mystery" class="btn btn-case">Открыть</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="features">
+            <div class="container">
+                <h2 class="section-title">Почему мы?</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h3>Мгновенные награды</h3>
+                        <p>Получай предметы сразу после открытия кейса</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🎯</div>
+                        <h3>Честная система</h3>
+                        <p>Прозрачная механика выпадения предметов</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">💎</div>
+                        <h3>Редкие предметы</h3>
+                        <p>Уникальные награды из каждого кейса</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Nebula Cases. Все права защищены.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Апгрейд - Nebula Cases</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <a href="index.html" class="logo">
+                <span class="logo-icon">◆</span>
+                <span class="logo-text">Nebula<span class="logo-accent">Cases</span></span>
+            </a>
+            <nav class="nav">
+                <a href="index.html" class="nav-link">Главная</a>
+                <a href="cases.html" class="nav-link">Кейсы</a>
+                <a href="upgrade.html" class="nav-link active">Апгрейд</a>
+                <a href="profile.html" class="nav-link">Профиль</a>
+            </nav>
+            <div class="header-balance">
+                <span class="balance-icon">⭐</span>
+                <span class="balance-amount" id="headerBalance">1000</span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="upgrade-section">
+            <div class="container">
+                <h1 class="page-title">⚡ Апгрейд предметов</h1>
+                <p class="page-subtitle">Улучшайте свои предметы — рискните ради большей награды!</p>
+
+                <div class="upgrade-layout">
+                    <!-- Выбор предмета из инвентаря -->
+                    <div class="upgrade-block">
+                        <h2 class="upgrade-title">1. Выберите предмет</h2>
+                        <div class="upgrade-inventory" id="upgradeInventory">
+                            <p class="empty-text">Инвентарь пуст. Откройте кейсы!</p>
+                        </div>
+                    </div>
+
+                    <!-- Стрелка -->
+                    <div class="upgrade-arrow">
+                        <span class="arrow-icon">➜</span>
+                    </div>
+
+                    <!-- Выбор целевого предмета -->
+                    <div class="upgrade-block">
+                        <h2 class="upgrade-title">2. Выберите цель</h2>
+                        <div class="upgrade-targets" id="upgradeTargets">
+                            <p class="empty-text">Сначала выберите предмет из инвентаря</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Шанс и кнопка -->
+                <div class="upgrade-action" id="upgradeAction" style="display: none;">
+                    <div class="chance-display">
+                        <span class="chance-label">Шанс успеха:</span>
+                        <span class="chance-value" id="chanceValue">0%</span>
+                    </div>
+                    <button class="btn btn-primary btn-upgrade" id="upgradeBtn" onclick="startUpgrade()">
+                        ⚡ Апгрейд
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Cinematic Upgrade Modal -->
+    <div class="modal-overlay cinematic-overlay" id="upgradeModal">
+        <!-- Blur Background Layer -->
+        <div class="cinematic-blur-bg" id="cinematicBlurBg"></div>
+        
+        <!-- Particles Canvas -->
+        <canvas class="cinematic-particles" id="upgradeParticles"></canvas>
+        
+        <!-- Main Modal Container -->
+        <div class="cinematic-modal" id="cinematicModal">
+            <!-- Ambient Glow -->
+            <div class="ambient-glow" id="ambientGlow"></div>
+            
+            <!-- Header -->
+            <div class="cinematic-header">
+                <span class="cinematic-badge">UPGRADE</span>
+                <h2 class="cinematic-title">Risk & Reward</h2>
+            </div>
+            
+            <!-- Items Arena -->
+            <div class="items-arena" id="itemsArena">
+                <!-- Left: Current Item -->
+                <div class="cinematic-item-box current-item" id="currentItemBox">
+                    <div class="item-aura" id="currentItemAura"></div>
+                    <div class="item-content" id="currentItemContent"></div>
+                    <div class="item-meta">
+                        <span class="item-value" id="currentItemValue">0⭐</span>
+                        <span class="item-tag">CURRENT</span>
+                    </div>
+                </div>
+                
+                <!-- Center: Energy Core -->
+                <div class="energy-core" id="energyCore">
+                    <div class="core-ring ring-1"></div>
+                    <div class="core-ring ring-2"></div>
+                    <div class="core-ring ring-3"></div>
+                    <div class="core-center" id="coreCenter">⚡</div>
+                    <div class="core-pulse"></div>
+                </div>
+                
+                <!-- Right: Target Item -->
+                <div class="cinematic-item-box target-item" id="targetItemBox">
+                    <div class="item-aura" id="targetItemAura"></div>
+                    <div class="item-content" id="targetItemContent"></div>
+                    <div class="item-meta">
+                        <span class="item-value" id="targetItemValue">0⭐</span>
+                        <span class="item-tag">TARGET</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Luck Bar -->
+            <div class="luck-bar-container" id="luckBarContainer">
+                <div class="luck-bar-bg">
+                    <div class="luck-gradient"></div>
+                    <div class="luck-marker" id="luckMarker">
+                        <div class="marker-glow"></div>
+                    </div>
+                </div>
+                <div class="luck-indicators">
+                    <span class="luck-label">LUCK METER</span>
+                    <span class="luck-chance" id="luckChance">0%</span>
+                </div>
+            </div>
+            
+            <!-- Phase Status -->
+            <div class="phase-status" id="phaseStatus">
+                <span class="phase-text" id="phaseText">Preparing...</span>
+                <div class="phase-dots">
+                    <span class="dot active"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Premium Result Modal -->
+    <div class="modal-overlay result-premium-overlay" id="upgradeResultModal">
+        <div class="result-premium-modal">
+            <canvas class="result-particles" id="resultParticles"></canvas>
+            <div class="result-content" id="upgradeResultContent">
+                <!-- Динамически заполняется -->
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Nebula Cases. Все права защищены.</p>
+        </div>
+    </footer>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>

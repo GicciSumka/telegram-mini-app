@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Профиль - Nebula Cases</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <a href="index.html" class="logo">
+                <span class="logo-icon">◆</span>
+                <span class="logo-text">Nebula<span class="logo-accent">Cases</span></span>
+            </a>
+            <nav class="nav">
+                <a href="index.html" class="nav-link">Главная</a>
+                <a href="cases.html" class="nav-link">Кейсы</a>
+                <a href="upgrade.html" class="nav-link">Апгрейд</a>
+                <a href="profile.html" class="nav-link active">Профиль</a>
+            </nav>
+            <div class="header-balance">
+                <span class="balance-icon">⭐</span>
+                <span class="balance-amount" id="headerBalance">1000</span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="profile-section">
+            <div class="container">
+                <div class="profile-card">
+                    <div class="profile-avatar">
+                        <div class="avatar-circle">
+                            <span class="avatar-letter">N</span>
+                        </div>
+                    </div>
+                    <div class="profile-info">
+                        <h1 class="profile-name">NebulaUser</h1>
+                        <div class="profile-balance">
+                            <span class="balance-label">Баланс:</span>
+                            <span class="balance-value">
+                                <span class="balance-icon-large">⭐</span>
+                                <span id="profileBalance">1000</span>
+                            </span>
+                        </div>
+                        <div class="profile-stats">
+                            <div class="stat">
+                                <span class="stat-value" id="casesOpened">0</span>
+                                <span class="stat-label">Кейсов открыто</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-value" id="totalItems">0</span>
+                                <span class="stat-label">Предметов</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-reset" onclick="resetBalance()">🔄 Сбросить баланс (1000⭐)</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="inventory-section">
+            <div class="container">
+                <h2 class="section-title">📦 Инвентарь</h2>
+                <div class="inventory-grid" id="inventoryGrid">
+                    <p class="empty-inventory" id="emptyInventory">Инвентарь пуст. Откройте несколько кейсов!</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="history-section">
+            <div class="container">
+                <h2 class="section-title">📜 История открытий</h2>
+                <div class="history-list" id="historyList">
+                    <p class="empty-history" id="emptyHistory">История пуста</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Nebula Cases. Все права защищены.</p>
+        </div>
+    </footer>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
