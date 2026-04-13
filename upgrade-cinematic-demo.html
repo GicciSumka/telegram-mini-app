@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎬 Cinematic Upgrade System Demo</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="upgrade-cinematic.css">
+    <style>
+        /* Demo specific styles */
+        .demo-header {
+            text-align: center;
+            padding: 2rem 0;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .demo-title {
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, var(--neon-purple), var(--neon-pink), var(--neon-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 30px var(--glow-purple);
+        }
+        
+        .demo-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+        
+        .demo-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .control-button {
+            padding: 0.8rem 1.5rem;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: 10px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s var(--ease-smooth);
+            backdrop-filter: blur(10px);
+        }
+        
+        .control-button:hover {
+            background: var(--bg-glass-strong);
+            border-color: var(--neon-purple);
+            transform: translateY(-2px);
+        }
+        
+        .control-button.active {
+            background: var(--neon-purple);
+            border-color: var(--neon-purple);
+        }
+        
+        .success-rate-control {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+        
+        .rate-slider {
+            width: 200px;
+            height: 6px;
+            background: var(--bg-glass-strong);
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .rate-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--neon-purple);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px var(--glow-purple);
+        }
+        
+        .rate-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--neon-gold);
+            min-width: 50px;
+        }
+        
+        .demo-info {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: 15px;
+            padding: 1.5rem;
+            backdrop-filter: blur(20px);
+            max-width: 300px;
+            z-index: 100;
+        }
+        
+        .demo-info h3 {
+            color: var(--neon-purple);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .demo-info p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 0.5rem;
+        }
+        
+        .phase-indicator {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: 25px;
+            padding: 1rem 2rem;
+            backdrop-filter: blur(20px);
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            z-index: 100;
+        }
+        
+        .phase-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--text-muted);
+            transition: all 0.3s var(--ease-smooth);
+        }
+        
+        .phase-dot.active {
+            background: var(--neon-purple);
+            box-shadow: 0 0 15px var(--glow-purple);
+            transform: scale(1.3);
+        }
+        
+        .phase-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        @media (max-width: 768px) {
+            .demo-info {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin: 2rem auto;
+                max-width: none;
+            }
+            
+            .demo-title {
+                font-size: 2rem;
+            }
+            
+            .demo-controls {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-header">
+        <h1 class="demo-title">🎬 CINEMATIC UPGRADE SYSTEM</h1>
+        <p class="demo-subtitle">Professional gaming UI with 4-phase animation cycle</p>
+        
+        <div class="demo-controls">
+            <button class="control-button" onclick="setAnimationSpeed(0.5)">🐌 Slow Motion</button>
+            <button class="control-button active" onclick="setAnimationSpeed(1)">⚡ Normal Speed</button>
+            <button class="control-button" onclick="setAnimationSpeed(2)">🚀 Fast Mode</button>
+        </div>
+        
+        <div class="success-rate-control">
+            <label style="color: var(--text-secondary);">Success Rate:</label>
+            <input type="range" class="rate-slider" id="successRateSlider" min="5" max="95" value="45" oninput="updateSuccessRate(this.value)">
+            <span class="rate-value" id="rateValue">45%</span>
+        </div>
+    </div>
+
+    <!-- Particle Canvas -->
+    <canvas id="particleCanvas" class="particle-canvas"></canvas>
+    
+    <!-- Overlay for dimming effect -->
+    <div id="upgradeOverlay" class="upgrade-overlay"></div>
+    
+    <!-- Main Upgrade Container -->
+    <div class="upgrade-container" id="upgradeContainer">
+        <!-- Items Section -->
+        <div class="items-section">
+            <!-- Current Item (Left) -->
+            <div class="item-slot current-item" id="currentItem">
+                <div class="item-glow"></div>
+                <div class="item-content">
+                    <div class="item-icon">🔫</div>
+                    <div class="item-name">AK-47 | Redline</div>
+                    <div class="item-rarity">Field-Tested</div>
+                    <div class="item-value">$125.00</div>
+                </div>
+                <div class="item-particles"></div>
+            </div>
+            
+            <!-- Upgrade Zone (Center) -->
+            <div class="upgrade-zone">
+                <div class="upgrade-meter-container">
+                    <div class="upgrade-meter" id="upgradeMeter">
+                        <div class="meter-fill" id="meterFill"></div>
+                        <div class="meter-pointer" id="meterPointer"></div>
+                    </div>
+                    <div class="success-rate" id="successRate">45%</div>
+                </div>
+                
+                <div class="upgrade-energy" id="upgradeEnergy">
+                    <div class="energy-core"></div>
+                    <div class="energy-ring"></div>
+                    <div class="energy-sparks"></div>
+                </div>
+                
+                <div class="upgrade-button-container">
+                    <button class="upgrade-button" id="upgradeButton">
+                        <span class="button-text">UPGRADE</span>
+                        <span class="button-glow"></span>
+                        <span class="button-particles"></span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Target Item (Right) -->
+            <div class="item-slot target-item" id="targetItem">
+                <div class="item-glow"></div>
+                <div class="item-content">
+                    <div class="item-icon">🔫</div>
+                    <div class="item-name">AK-47 | Fire Serpent</div>
+                    <div class="item-rarity">Minimal Wear</div>
+                    <div class="item-value">$450.00</div>
+                </div>
+                <div class="item-particles"></div>
+            </div>
+        </div>
+        
+        <!-- Result Effects -->
+        <div class="result-effects" id="resultEffects">
+            <div class="success-effect" id="successEffect">
+                <div class="success-flash"></div>
+                <div class="success-confetti"></div>
+                <div class="success-text">SUCCESS!</div>
+            </div>
+            
+            <div class="fail-effect" id="failEffect">
+                <div class="fail-flash"></div>
+                <div class="fail-shatter"></div>
+                <div class="fail-text">FAILED</div>
+            </div>
+        </div>
+        
+        <!-- Status Text -->
+        <div class="upgrade-status" id="upgradeStatus">
+            <div class="status-preparation">Preparing upgrade...</div>
+            <div class="status-charging">Charging energy...</div>
+            <div class="status-tension">Almost there...</div>
+            <div class="status-result" id="statusResult"></div>
+        </div>
+    </div>
+    
+    <!-- Phase Indicator -->
+    <div class="phase-indicator">
+        <div class="phase-dot" id="phase1"></div>
+        <div class="phase-dot" id="phase2"></div>
+        <div class="phase-dot" id="phase3"></div>
+        <div class="phase-dot" id="phase4"></div>
+        <span class="phase-label" id="phaseLabel">Ready</span>
+    </div>
+    
+    <!-- Demo Info -->
+    <div class="demo-info">
+        <h3>🎮 Features</h3>
+        <p>• 4-Phase cinematic animation cycle</p>
+        <p>• Advanced particle system</p>
+        <p>• Glassmorphism UI design</p>
+        <p>• Dynamic lighting effects</p>
+        <p>• Smooth easing functions</p>
+        <p>• Sound effects integration</p>
+        <p>• Responsive design</p>
+        
+        <h3>⚡ Controls</h3>
+        <p>• Click UPGRADE to start</p>
+        <p>• Adjust success rate slider</p>
+        <p>• Try different animation speeds</p>
+        <p>• Move mouse for particle trail</p>
+    </div>
+    
+    <!-- Sound Effects -->
+    <audio id="chargingSound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmFgU7k9n1unEiBC13yO/eizEIHWq+8+OWT" type="audio/wav">
+    </audio>
+    <audio id="successSound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmFgU7k9n1unEiBC13yO/eizEIHWq+8+OWT" type="audio/wav">
+    </audio>
+    <audio id="failSound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmFgU7k9n1unEiBC13yO/eizEIHWq+8+OWT" type="audio/wav">
+    </audio>
+    
+    <script src="upgrade-cinematic.js"></script>
+    <script>
+        // Demo-specific functionality
+        let currentPhase = 0;
+        
+        function setAnimationSpeed(speed) {
+            // Update button states
+            document.querySelectorAll('.control-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Update animation speed in the upgrade system
+            if (window.upgradeSystem) {
+                window.upgradeSystem.animationSpeed = speed;
+            }
+        }
+        
+        function updateSuccessRate(value) {
+            document.getElementById('rateValue').textContent = value + '%';
+            document.getElementById('successRate').textContent = value + '%';
+            
+            if (window.upgradeSystem) {
+                window.upgradeSystem.successRate = parseInt(value);
+            }
+        }
+        
+        // Phase indicator updates
+        function updatePhaseIndicator(phase, label) {
+            // Reset all dots
+            document.querySelectorAll('.phase-dot').forEach(dot => {
+                dot.classList.remove('active');
+            });
+            
+            // Activate current phase
+            if (phase >= 1 && phase <= 4) {
+                document.getElementById(`phase${phase}`).classList.add('active');
+            }
+            
+            // Update label
+            document.getElementById('phaseLabel').textContent = label;
+        }
+        
+        // Override the upgrade system methods to add demo features
+        document.addEventListener('DOMContentLoaded', () => {
+            const originalStartUpgrade = window.upgradeSystem.startUpgrade;
+            
+            window.upgradeSystem.startUpgrade = async function() {
+                updatePhaseIndicator(1, 'Preparation');
+                await originalStartUpgrade.call(this);
+            };
+            
+            // Hook into phase transitions
+            const originalPhasePreparation = window.upgradeSystem.phasePreparation;
+            window.upgradeSystem.phasePreparation = async function() {
+                updatePhaseIndicator(1, 'Preparation');
+                await originalPhasePreparation.call(this);
+                updatePhaseIndicator(2, 'Charging');
+            };
+            
+            const originalPhaseCharging = window.upgradeSystem.phaseCharging;
+            window.upgradeSystem.phaseCharging = async function() {
+                updatePhaseIndicator(2, 'Charging');
+                await originalPhaseCharging.call(this);
+                updatePhaseIndicator(3, 'Tension Peak');
+            };
+            
+            const originalPhaseTensionPeak = window.upgradeSystem.phaseTensionPeak;
+            window.upgradeSystem.phaseTensionPeak = async function() {
+                updatePhaseIndicator(3, 'Tension Peak');
+                await originalPhaseTensionPeak.call(this);
+                updatePhaseIndicator(4, 'Result');
+            };
+            
+            const originalResetSystem = window.upgradeSystem.resetSystem;
+            window.upgradeSystem.resetSystem = function() {
+                updatePhaseIndicator(0, 'Ready');
+                originalResetSystem.call(this);
+            };
+        });
+        
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                document.getElementById('upgradeButton').click();
+            } else if (e.code === 'Digit1') {
+                setAnimationSpeed(0.5);
+            } else if (e.code === 'Digit2') {
+                setAnimationSpeed(1);
+            } else if (e.code === 'Digit3') {
+                setAnimationSpeed(2);
+            }
+        });
+    </script>
+</body>
+</html>
